@@ -18,12 +18,10 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // A tip entry must have sensible values and belong to the person saving it.
+    // A tip must belong to the person saving it and have sensible values.
     function isValidTip(tip) {
       return tip.userId == request.auth.uid
-        && tip.restaurantId is string
         && tip.shiftDate is string
-        && tip.shift in ['Morning', 'Evening']
         && tip.billAmount is number && tip.billAmount > 0
         && tip.tipAmount is number && tip.tipAmount >= 0 && tip.tipAmount <= tip.billAmount
         && tip.partySize is int && tip.partySize >= 1
@@ -38,26 +36,13 @@ service cloud.firestore {
       allow delete: if isOwner(userId);
     }
 
-    // Tip entries: private to the server who logged them.
-    // Administrators may read them to calculate the anonymised benchmark.
+    // Tips are private to the server who logged them.
     match /tipEntries/{tipId} {
-      allow read: if signedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow read, delete: if signedIn() && resource.data.userId == request.auth.uid;
       allow create: if signedIn() && isValidTip(request.resource.data);
       allow update: if signedIn()
         && resource.data.userId == request.auth.uid
         && isValidTip(request.resource.data);
-      allow delete: if signedIn() && resource.data.userId == request.auth.uid;
-    }
-
-    // Benchmarks and restaurants hold no personal data, so guests can read them.
-    match /benchmarks/{benchmarkId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /restaurants/{restaurantId} {
-      allow read: if true;
-      allow write: if isAdmin();
     }
 
     // Calculator sessions: guests can add an anonymous record. Only administrators can read them.

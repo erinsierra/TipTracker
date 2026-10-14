@@ -1,18 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import AppButton from '../components/AppButton';
 import AppInput from '../components/AppInput';
-import Card from '../components/Card';
 import ChoiceChips from '../components/ChoiceChips';
 import ScreenLayout from '../components/ScreenLayout';
 import SectionLabel from '../components/SectionLabel';
-import { DEFAULT_RESTAURANT, DISPLAY_VARIANTS, SA_NORM } from '../config/constants';
+import { DISPLAY_VARIANTS, SA_NORM } from '../config/constants';
 import { useToast } from '../context/ToastContext';
-import { fetchLatestBenchmark } from '../services/benchmarkService';
 import { logCalculatorSession } from '../services/calculatorService';
-import { getCachedBenchmark } from '../services/offlineQueue';
-import { colors, fontSizes, fonts, spacing } from '../theme/theme';
+import { colors, fontSizes, fonts, radius, spacing } from '../theme/theme';
 import { calculateTipAmount, roundTo } from '../utils/calculations';
 import { formatPercent, formatRand } from '../utils/format';
 import { withTimeout } from '../utils/network';
@@ -28,29 +25,18 @@ function pickVariant() {
 }
 
 /**
- * Customer tip calculator. No account is needed. The suggested tip follows
- * the South African norm, and the customer can change it before finishing.
+ * Customer tip calculator. No account is needed. The one-tap choices follow the
+ * South African norm; "Other" takes any percentage. When the customer taps Done,
+ * an anonymous record of the session is saved for the A/B analytics.
  */
 export default function CalculatorScreen({ navigation }) {
   const showToast = useToast();
   const [variant] = useState(pickVariant);
-  const [benchmark, setBenchmark] = useState(null);
   const [billText, setBillText] = useState('');
   const [choice, setChoice] = useState(SA_NORM.suggested);
   const [customText, setCustomText] = useState('');
   const [errors, setErrors] = useState({});
   const [finishing, setFinishing] = useState(false);
-
-  // Load the local benchmark. If there is no signal, use the last one saved on the phone.
-  useEffect(() => {
-    let active = true;
-    fetchLatestBenchmark(DEFAULT_RESTAURANT.id)
-      .catch(() => getCachedBenchmark())
-      .then((latest) => active && setBenchmark(latest));
-    return () => {
-      active = false;
-    };
-  }, []);
 
   const bill = parseAmount(billText);
   const hasBill = bill > 0;
@@ -59,7 +45,11 @@ export default function CalculatorScreen({ navigation }) {
   const tip = hasBill && hasPercentage ? calculateTipAmount(bill, percentage) : 0;
   const total = hasBill ? roundTo(bill + tip) : 0;
 
-  // Variant B adds the rand value under each percentage.
+  // Show a message as soon as the customer has typed something that does not work.
+  const billError = errors.bill ?? (billText.trim() ? validateAmount(billText, 'bill amount') : null);
+  const customError = errors.custom ?? (choice === CUSTOM && customText.trim() ? validatePercentage(customText) : null);
+
+  // Variant B adds the rand value under each percentage and the South African norm.
   const showAmounts = variant.id === DISPLAY_VARIANTS.B.id;
   const options = [
     ...variant.suggestedPercentages.map((value) => ({
@@ -72,11 +62,11 @@ export default function CalculatorScreen({ navigation }) {
 
   const handleDone = async () => {
     const found = {};
-    const billError = validateAmount(billText, 'bill amount');
-    if (billError) found.bill = billError;
+    const billProblem = validateAmount(billText, 'bill amount');
+    if (billProblem) found.bill = billProblem;
     if (choice === CUSTOM) {
-      const customError = validatePercentage(customText);
-      if (customError) found.custom = customError;
+      const customProblem = validatePercentage(customText);
+      if (customProblem) found.custom = customProblem;
     }
     setErrors(found);
     if (Object.keys(found).length) return;
@@ -100,6 +90,8 @@ export default function CalculatorScreen({ navigation }) {
     navigation.goBack();
   };
 
+  const clearErrors = (field) => setErrors((current) => ({ ...current, [field]: undefined }));
+
   return (
     <ScreenLayout title="Tip calculator" onBack={navigation.goBack}>
       <AppInput
@@ -110,18 +102,16 @@ export default function CalculatorScreen({ navigation }) {
         value={billText}
         onChangeText={(value) => {
           setBillText(value);
-          setErrors((current) => ({ ...current, bill: undefined }));
+          clearErrors('bill');
         }}
-        error={errors.bill}
+        error={billError}
       />
 
-      <SectionLabel>Suggested tip - SA norm</SectionLabel>
+      <SectionLabel>Tip</SectionLabel>
       <ChoiceChips options={options} value={choice} onChange={setChoice} style={styles.chips} />
       {showAmounts ? (
         <Text style={styles.guide}>
-          {benchmark
-            ? `Servers at ${DEFAULT_RESTAURANT.name} average ${formatPercent(benchmark.averageTipPercentage)}, based on real tips logged here.`
-            : `Most South Africans tip ${SA_NORM.min}-${SA_NORM.max}% for table service.`}
+          Most South Africans tip {SA_NORM.min}-{SA_NORM.max}% for table service.
         </Text>
       ) : null}
 
@@ -133,13 +123,13 @@ export default function CalculatorScreen({ navigation }) {
           value={customText}
           onChangeText={(value) => {
             setCustomText(value);
-            setErrors((current) => ({ ...current, custom: undefined }));
+            clearErrors('custom');
           }}
-          error={errors.custom}
+          error={customError}
         />
       ) : null}
 
-      <Card style={styles.summary}>
+      <View accessibilityLiveRegion="polite" style={styles.result}>
         <View style={styles.line}>
           <Text style={styles.lineText}>Bill</Text>
           <Text style={styles.lineText}>{formatRand(hasBill ? bill : 0)}</Text>
@@ -148,28 +138,32 @@ export default function CalculatorScreen({ navigation }) {
           <Text style={styles.lineText}>Tip ({hasPercentage ? formatPercent(percentage) : '-'})</Text>
           <Text style={styles.lineText}>{formatRand(tip)}</Text>
         </View>
-        <View accessibilityLiveRegion="polite" style={[styles.line, styles.totalLine]}>
-          <Text style={styles.totalText}>Total</Text>
-          <Text style={styles.totalText}>{formatRand(total)}</Text>
-        </View>
-      </Card>
+        <View style={styles.divider} />
+        <Text style={styles.totalLabel}>Total to pay</Text>
+        <Text style={styles.total}>{formatRand(total)}</Text>
+      </View>
 
-      <AppButton title="Done" onPress={handleDone} loading={finishing} />
-      <Text style={styles.note}>
-        Suggestions use South African tipping norms, not overseas rates. Nothing that identifies you is saved.
-      </Text>
+      <AppButton title="Done" onPress={handleDone} loading={finishing} style={styles.done} />
+      
     </ScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
   chips: { marginBottom: spacing.md },
-  guide: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: fontSizes.sm, marginBottom: spacing.md },
-  summary: { marginTop: spacing.sm, marginBottom: spacing.xl },
+  guide: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: fontSizes.sm, marginBottom: spacing.lg },
+  result: {
+    backgroundColor: colors.primary,
+    borderRadius: radius.md,
+    padding: spacing.xl,
+    marginTop: spacing.sm,
+  },
   line: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: spacing.xs },
-  lineText: { color: colors.primaryDark, fontFamily: fonts.regular, fontSize: fontSizes.md },
-  totalLine: { borderTopWidth: 1.5, borderTopColor: colors.creamBorder, marginTop: spacing.sm, paddingTop: spacing.md },
-  totalText: { color: colors.text, fontFamily: fonts.semiBold, fontSize: fontSizes.lg },
+  lineText: { color: colors.white, fontFamily: fonts.regular, fontSize: fontSizes.md },
+  divider: { height: 1, backgroundColor: colors.primarySoft, marginVertical: spacing.md },
+  totalLabel: { color: colors.white, fontFamily: fonts.regular, fontSize: fontSizes.sm },
+  total: { color: colors.white, fontFamily: fonts.semiBold, fontSize: fontSizes.xxl },
+  done: { marginTop: spacing.xl },
   note: {
     color: colors.textMuted,
     fontFamily: fonts.regular,

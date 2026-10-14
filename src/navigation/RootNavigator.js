@@ -4,19 +4,17 @@ import LoadingView from '../components/LoadingView';
 import { useAuth } from '../context/AuthContext';
 import { TipsProvider } from '../context/TipsContext';
 import AdminAnalyticsScreen from '../screens/admin/AdminAnalyticsScreen';
-import AdminBenchmarksScreen from '../screens/admin/AdminBenchmarksScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import CalculatorScreen from '../screens/CalculatorScreen';
 import HomeScreen from '../screens/HomeScreen';
-import EditTipScreen from '../screens/server/EditTipScreen';
 import ServerTabs from './ServerTabs';
 
 const Stack = createNativeStackNavigator();
 const SCREEN_OPTIONS = { headerShown: false };
 
-/** Screens anyone can open: role selection, the guest calculator and sign-in. */
+/** Screens anyone can open: the start screen, the guest calculator and sign-in. */
 function PublicStack() {
   return (
     <Stack.Navigator screenOptions={SCREEN_OPTIONS}>
@@ -29,29 +27,23 @@ function PublicStack() {
   );
 }
 
-/** Screens for signed-in servers. Administrator screens are only added for administrators. */
+/** Screens for signed-in servers. The analytics screen is only added for administrators. */
 function ServerStack() {
   const { isAdmin } = useAuth();
   return (
     <TipsProvider>
       <Stack.Navigator screenOptions={SCREEN_OPTIONS}>
         <Stack.Screen name="Tabs" component={ServerTabs} />
-        <Stack.Screen name="EditTip" component={EditTipScreen} />
-        {isAdmin ? (
-          <>
-            <Stack.Screen name="AdminBenchmarks" component={AdminBenchmarksScreen} />
-            <Stack.Screen name="AdminAnalytics" component={AdminAnalyticsScreen} />
-          </>
-        ) : null}
+        {isAdmin ? <Stack.Screen name="AdminAnalytics" component={AdminAnalyticsScreen} /> : null}
       </Stack.Navigator>
     </TipsProvider>
   );
 }
 
 /**
- * Chooses which set of screens exists based on the login state. Because the
- * server screens are not even mounted for guests, they cannot be reached
- * without signing in, and logging out clears the back-stack automatically.
+ * Chooses which screens exist based on the sign-in state. Server screens are not
+ * mounted for guests, so they cannot be reached without signing in, and signing
+ * out clears the back-stack automatically.
  */
 export default function RootNavigator() {
   const { user, initialising } = useAuth();

@@ -1,22 +1,23 @@
 # Tip Tracker
 
-Mobile app for South African restaurant servers and customers.
+A small React Native (Expo) app for restaurant servers and their customers.
 
-- **Customers** work out a fair tip using the South African norm (10-15%). No account needed.
-- **Servers** log tips after each shift, see their earnings trend and compare their average with the benchmark.
-- **Administrators** recalculate the benchmark from anonymised tip data and view A/B results.
+- **Customers** work out a fair tip using the South African norm (10-15%). No account needed. Each use leaves an
+  anonymous record (bill, tip chosen, which display they saw) for the A/B analytics.
+- **Servers** register or sign in, log the tips they receive (works offline), and see their tip history with totals.
+- **Administrators** see how the two calculator displays compare (A/B analytics).
 
-Built with React Native (Expo SDK 57), Firebase Authentication and Cloud Firestore.
+Built with Expo SDK 57, Firebase Authentication and Cloud Firestore.
 
 ## Run the app
 
-You need Node.js 20.19 or newer (22 recommended) and the Expo Go app on your phone.
+You need Node.js 20.19 or newer and the Expo Go app on your phone.
 
-1. **Create a Firebase project** at https://console.firebase.google.com.
+1. Create a Firebase project at https://console.firebase.google.com.
 2. **Authentication** > Sign-in method > enable **Email/Password**.
-3. **Firestore Database** > Create database (production mode).
+3. **Firestore Database** > Create database.
 4. **Firestore Database > Rules** > paste the contents of `firestore.rules` > Publish.
-5. **Project settings > Your apps** > add a **Web app** > copy the config values.
+5. **Project settings > Your apps** > add a **Web app** and copy the config values.
 6. Copy `.env.example` to `.env` and paste the values in.
 7. Install and start:
 
@@ -24,8 +25,6 @@ You need Node.js 20.19 or newer (22 recommended) and the Expo Go app on your pho
    npm install
    npx expo start
    ```
-
-8. Scan the QR code with Expo Go (Android) or the Camera app (iOS).
 
 If you change `.env`, restart with `npx expo start -c`.
 
@@ -35,7 +34,7 @@ If you change `.env`, restart with `npx expo start -c`.
 2. In the Firebase console open Firestore > `users` > that user's document.
 3. Change `role` from `server` to `admin`.
 
-The Profile screen then shows the administrator tools. The app cannot grant this role itself; the security rules block it.
+The Account screen then shows **View A/B analytics**. The app cannot grant this role itself; the security rules block it.
 
 ## Checks
 
@@ -45,59 +44,56 @@ npm run lint    # ESLint (Expo rules)
 npm run format  # Prettier
 ```
 
+## Screens
+
+| Screen | Who | What it does |
+| --- | --- | --- |
+| Home | Everyone | Choose customer or server |
+| Tip calculator | Customer | Bill + tip % = total to pay |
+| Sign in / Create account / Reset password | Server | Email and password; a reset link by email |
+| Log a tip | Server | Date, bill, tip received and party size; the tip % is worked out for you |
+| Tip history | Server | All logged tips, newest first, with total and average. Delete an entry |
+| Account | Server | Sync offline tips, sign out, or delete the account and all its tips |
+| A/B analytics | Administrator | Compare the two calculator displays |
+
 ## Project structure
 
 ```
 App.js                  Entry point: fonts and providers
 firestore.rules         Database security rules
 src/
-  config/               Firebase set-up and app constants
+  config/               Firebase set-up and constants
   theme/                Colours, spacing, fonts
-  context/              Shared state: login, tips, feedback messages
-  navigation/           Stack and tab navigators
-  services/             All Firebase and local-storage calls
+  context/              Shared state: sign-in, tips, toast messages
+  navigation/           Public stack and signed-in tabs
+  services/             Firebase and local-storage calls (auth, users, tips, offline queue, calculator sessions)
   utils/                Pure logic: calculations, validation, dates, formatting
-  components/           Reusable UI: buttons, inputs, chart, dialogs
-  screens/              One file per screen (auth/, server/, admin/)
+  components/           Reusable UI
+  screens/              One file per screen
 tests/                  Unit tests
 ```
 
-Screens never call Firebase directly. They call a service or a context, which keeps the UI, the logic and the data access separate.
+## A/B test
 
-## How the app meets Deliverable 4
-
-| Requirement | Where |
-| --- | --- |
-| 1. Screen development | 12 working screens: Home, Tip calculator, Sign in, Create account, Reset password, Dashboard, Log a tip, Tip history, Edit entry, Profile, Benchmarks, A/B analytics. Shared `ScreenLayout`, `AppButton`, `AppInput` and `theme.js` keep the styling consistent with the wireframes. |
-| 2. Authentication | `services/authService.js`: register, login, logout, password reset, delete account. Firebase hashes passwords and issues tokens. Server screens only exist for signed-in users (`navigation/RootNavigator.js`). |
-| 3. Backend integration | Cloud Firestore through `services/`. `firestore.rules` limits each server to their own data. |
-| 4. Core functionality (CRUD) | **Tip entries**: create (Log a tip), read (Dashboard, History), update and delete (Edit entry, History). **Profile**: create (register), read and update (Profile), delete (Delete my account). **Benchmarks** (administrator): create (Recalculate), read, update (Correct), delete. |
-| 5. Navigation and routing | Native stack plus bottom tabs. Logging in or out swaps the whole stack, so the back button can never return to a screen the user should not see. |
-| 6. UI feedback | Inline validation errors on every field, success and error messages, loading spinners on buttons, confirmation dialogs before deleting, offline banner, empty states. |
-| 7. Code quality | Layered structure above, comments on every module and non-obvious function, ESLint and Prettier, unit tests. |
-
-## Data model
-
-Collections mirror the entities in the Deliverable 3 ERD.
-
-| Collection | Fields |
-| --- | --- |
-| `restaurants` | name, address, active |
-| `users` | restaurantId, name, email, role, createdAt |
-| `tipEntries` | restaurantId, userId, shiftDate, shift, billAmount, tipAmount, partySize, tipPercentage, synced, createdAt |
-| `benchmarks` | restaurantId, periodStart, periodEnd, averageTipPercentage, entryCount, calculatedAt, source |
-| `calculatorSessions` | displayVariantId, billAmount, suggestedPercentage, selectedPercentage, createdAt |
-
-## Differences from the design document
-
-- **Firestore instead of a relational database behind a REST API.** Firebase is on the approved technology list and provides authentication and security rules without a separate server. The collections keep the same entities, fields and relationships as the ERD. Benchmark averages are calculated in the app (`calculateBenchmark`) rather than by SQL.
-- **No `password_hash` field on users.** Firebase Authentication stores the hashed password, so the app never handles it.
-- **`shift` and `entryCount` fields added.** `shift` is in the functional requirements and wireframe but was missing from the ERD. `entryCount` shows how many entries a benchmark is based on.
-- **Display variants are defined in code** (`config/constants.js`) rather than in a table, because there are only two fixed variants.
-- **Benchmark recalculation is started by an administrator** from the Benchmarks screen rather than on a timer.
+Each customer is randomly shown one of two displays: **A** shows the tip choices as percentages only; **B** also
+shows the rand amount under each choice and a line about the South African norm. When the customer taps Done,
+one anonymous record is saved to `calculatorSessions`. The analytics screen compares the average tip chosen,
+how often the suggested tip was kept, and the average bill for each display.
 
 ## Offline behaviour
 
-- A tip logged without signal is saved on the phone and marked "Waiting to sync". It uploads automatically when the connection returns.
-- The last loaded entries and benchmark are cached, so the dashboard and calculator still open offline.
-- Editing and deleting synced entries need a connection.
+- A tip logged without signal is saved on the phone and marked "Waiting to sync". It uploads automatically
+  when the connection returns, or from **Sync now** on the Account screen.
+- The last loaded tips are cached, so the history still opens offline.
+- Deleting a synced tip needs a connection. Tips still waiting to sync can be deleted offline.
+
+## Data
+
+| Collection | Fields |
+| --- | --- |
+| `users` | name, email, role (`server` or `admin`), createdAt |
+| `tipEntries` | userId, shiftDate, billAmount, tipAmount, partySize, tipPercentage, createdAt, synced |
+| `calculatorSessions` | displayVariantId, billAmount, suggestedPercentage, selectedPercentage, createdAt |
+
+The rules let a server read, write and delete only their own tips. Only administrators can read
+`calculatorSessions`.

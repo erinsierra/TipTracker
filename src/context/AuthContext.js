@@ -1,11 +1,11 @@
 /**
  * Holds the signed-in user and their profile for the whole app.
- * Navigation reads this to decide between the public and the server screens.
+ * Navigation reads this to decide between the public and the signed-in screens.
  */
 import { onAuthStateChanged } from 'firebase/auth';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-import { DEFAULT_RESTAURANT, ROLES } from '../config/constants';
+import { ROLES } from '../config/constants';
 import { auth } from '../config/firebase';
 import { subscribeToUserProfile } from '../services/userService';
 
@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [initialising, setInitialising] = useState(true);
 
-  // Firebase restores a saved session on launch, then reports every login and logout.
+  // Firebase restores a saved session on launch, then reports every sign-in and sign-out.
   useEffect(
     () =>
       onAuthStateChanged(auth, (currentUser) => {
@@ -27,7 +27,7 @@ export function AuthProvider({ children }) {
     []
   );
 
-  // Keep the profile (name, role, restaurant) in step with the database.
+  // Keep the profile (name, role) in step with the database.
   useEffect(() => {
     if (!user) return undefined;
     return subscribeToUserProfile(user.uid, setProfile, () => setProfile(null));
@@ -39,7 +39,6 @@ export function AuthProvider({ children }) {
       profile,
       initialising,
       displayName: profile?.name ?? user?.displayName ?? 'Server',
-      restaurantId: profile?.restaurantId ?? DEFAULT_RESTAURANT.id,
       isAdmin: profile?.role === ROLES.admin,
     }),
     [user, profile, initialising]

@@ -1,6 +1,6 @@
 /**
  * Date helpers. Shift dates are stored as 'YYYY-MM-DD' strings in local time,
- * which keeps them easy to sort, filter and compare.
+ * which keeps them easy to sort and compare.
  */
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -25,25 +25,6 @@ export function addDays(key, days) {
   return toDateKey(date);
 }
 
-/** Returns the Monday of the week that contains the given date key. */
-export function startOfWeek(key) {
-  const weekday = parseDateKey(key).getDay(); // 0 = Sunday
-  const daysSinceMonday = (weekday + 6) % 7;
-  return addDays(key, -daysSinceMonday);
-}
-
-/** Returns the first day of the month that contains the given date key. */
-export function startOfMonth(key) {
-  return `${key.slice(0, 7)}-01`;
-}
-
-/** Returns the first day of the month `months` away from the given key. */
-export function addMonths(key, months) {
-  const date = parseDateKey(startOfMonth(key));
-  date.setMonth(date.getMonth() + months);
-  return toDateKey(date);
-}
-
 /** e.g. '17 Aug' */
 export function formatShortDate(key) {
   const date = parseDateKey(key);
@@ -54,14 +35,4 @@ export function formatShortDate(key) {
 export function formatLongDate(key) {
   const date = parseDateKey(key);
   return `${WEEKDAYS[date.getDay()]}, ${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
-}
-
-/** e.g. 'Mon' */
-export function weekdayLabel(key) {
-  return WEEKDAYS[parseDateKey(key).getDay()];
-}
-
-/** e.g. 'Aug' */
-export function monthLabel(key) {
-  return MONTHS[parseDateKey(key).getMonth()];
 }

@@ -4,7 +4,7 @@ import { useTips } from '../../context/TipsContext';
 import { useToast } from '../../context/ToastContext';
 import { getDataErrorMessage } from '../../utils/errors';
 
-/** Records a new tip entry, then returns to the dashboard, which updates immediately. */
+/** Records a new tip, then opens the history, which already includes it. */
 export default function LogTipScreen({ navigation }) {
   const { addTip } = useTips();
   const showToast = useToast();
@@ -13,11 +13,11 @@ export default function LogTipScreen({ navigation }) {
     try {
       const result = await addTip(form);
       if (result === 'queued') {
-        showToast('No signal - entry saved on this phone. It will sync later.', 'info');
+        showToast('No signal - tip saved on this phone. It will sync later.', 'info');
       } else {
-        showToast('Tip entry saved.');
+        showToast('Tip saved.');
       }
-      navigation.navigate('Dashboard');
+      navigation.navigate('History');
     } catch (error) {
       showToast(getDataErrorMessage(error), 'error');
       throw error;
@@ -26,11 +26,7 @@ export default function LogTipScreen({ navigation }) {
 
   return (
     <ScreenLayout title="Log a tip">
-      <TipForm
-        submitLabel="Save entry"
-        onSubmit={handleSubmit}
-        footnote="No signal? Entry saves offline and syncs later"
-      />
+      <TipForm onSubmit={handleSubmit} />
     </ScreenLayout>
   );
 }

@@ -4,7 +4,6 @@ import { StyleSheet, Text } from 'react-native';
 import AppButton from '../../components/AppButton';
 import AppInput from '../../components/AppInput';
 import ScreenLayout from '../../components/ScreenLayout';
-import { DEFAULT_RESTAURANT } from '../../config/constants';
 import { useToast } from '../../context/ToastContext';
 import { getAuthErrorMessage, registerServer } from '../../services/authService';
 import { colors, fontSizes, fonts, spacing } from '../../theme/theme';
@@ -86,9 +85,7 @@ export default function RegisterScreen({ navigation }) {
         error={errors.confirmation}
       />
 
-      <Text style={styles.note}>
-        Your account is linked to {DEFAULT_RESTAURANT.name}. Only you can see your tip records.
-      </Text>
+      <Text style={styles.note}>Only you can see your tip records.</Text>
       <AppButton title="Create account" onPress={handleRegister} loading={submitting} />
       <AppButton title="I already have an account" variant="text" onPress={navigation.goBack} />
     </ScreenLayout>

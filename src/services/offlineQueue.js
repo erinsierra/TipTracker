@@ -1,7 +1,7 @@
 /**
- * Offline support (FR13). Tips logged without signal wait in a queue on the
- * phone and are uploaded when the connection returns. The last known entries
- * and benchmark are also cached so the dashboard still opens offline.
+ * Offline support. Tips logged without signal wait in a queue on the phone
+ * and are uploaded when the connection returns. The last known entries are
+ * also cached so the history still opens offline.
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -9,7 +9,6 @@ import { saveTip } from './tipService';
 
 const pendingKey = (userId) => `tipTracker:pendingTips:${userId}`;
 const entriesKey = (userId) => `tipTracker:cachedTips:${userId}`;
-const BENCHMARK_KEY = 'tipTracker:cachedBenchmark';
 
 async function readJson(key, fallback) {
   try {
@@ -66,9 +65,6 @@ export async function syncPendingTips(userId) {
 
 export const cacheTips = (userId, entries) => writeJson(entriesKey(userId), entries);
 export const getCachedTips = (userId) => readJson(entriesKey(userId), []);
-
-export const cacheBenchmark = (benchmark) => writeJson(BENCHMARK_KEY, benchmark);
-export const getCachedBenchmark = () => readJson(BENCHMARK_KEY, null);
 
 /** Clears everything stored on the phone for a user (used when an account is deleted). */
 export function clearLocalData(userId) {

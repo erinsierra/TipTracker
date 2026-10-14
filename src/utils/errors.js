@@ -6,8 +6,6 @@ export function getDataErrorMessage(error) {
       return 'No connection. Check your signal and try again.';
     case 'permission-denied':
       return 'You do not have permission to do that.';
-    case 'benchmark/no-data':
-      return error.message;
     default:
       return 'Something went wrong. Please try again.';
   }

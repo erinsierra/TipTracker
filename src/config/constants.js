@@ -1,29 +1,12 @@
-/**
- * App-wide constants that describe the pilot set-up.
- */
+/** App-wide constants. */
 
-/** Firestore collection names. They mirror the tables in the Deliverable 3 ERD. */
-export const COLLECTIONS = {
-  restaurants: 'restaurants',
-  users: 'users',
-  tipEntries: 'tipEntries',
-  benchmarks: 'benchmarks',
-  calculatorSessions: 'calculatorSessions',
-};
-
-/** The pilot restaurant. New servers are linked to it when they register. */
-export const DEFAULT_RESTAURANT = {
-  id: 'bossa-woodbridge',
-  name: 'Bossa Woodbridge',
-  address: 'Woodbridge Island, Cape Town',
-};
+export const COLLECTIONS = { users: 'users', tipEntries: 'tipEntries', calculatorSessions: 'calculatorSessions' };
 
 export const ROLES = { server: 'server', admin: 'admin' };
 
-export const SHIFTS = ['Morning', 'Evening'];
-
-/** South African tipping norm used when no local benchmark has been calculated yet. */
+/** South African tipping norm. The calculator offers these as one-tap choices. */
 export const SA_NORM = { min: 10, max: 15, suggested: 12.5 };
+export const TIP_PRESETS = [10, 12.5, 15];
 
 /**
  * The two tip-display variants used for A/B testing on the customer calculator.
@@ -34,18 +17,15 @@ export const DISPLAY_VARIANTS = {
     id: 'A',
     name: 'Percentage only',
     description: 'Suggested tips are shown as percentages.',
-    suggestedPercentages: [10, 12.5, 15],
+    suggestedPercentages: TIP_PRESETS,
   },
   B: {
     id: 'B',
     name: 'Percentage with rand amount',
-    description: 'Suggested tips show the rand amount and the local benchmark.',
-    suggestedPercentages: [10, 12.5, 15],
+    description: 'Suggested tips show the rand amount and the South African norm.',
+    suggestedPercentages: TIP_PRESETS,
   },
 };
-
-/** How close (in percentage points) an average must be to count as "on benchmark". */
-export const BENCHMARK_TOLERANCE = 0.5;
 
 /** How long to wait for the cloud before saving a tip to the offline queue. */
 export const NETWORK_TIMEOUT_MS = 8000;

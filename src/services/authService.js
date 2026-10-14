@@ -1,5 +1,5 @@
 /**
- * Authentication: register, login, logout, password reset and account deletion.
+ * Authentication: register, sign in, sign out, password reset and account deletion.
  * Firebase Auth hashes the passwords and issues the session tokens, so the app
  * never stores a password itself.
  */
@@ -45,8 +45,7 @@ export function requestPasswordReset(email) {
  */
 export async function deleteAccount(password) {
   const user = auth.currentUser;
-  const credential = EmailAuthProvider.credential(user.email, password);
-  await reauthenticateWithCredential(user, credential);
+  await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, password));
 
   await deleteAllTipsForUser(user.uid);
   await deleteUserProfile(user.uid);

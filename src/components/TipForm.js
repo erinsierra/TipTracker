@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { SHIFTS } from '../config/constants';
 import { colors, fontSizes, fonts, spacing } from '../theme/theme';
 import { calculateTipPercentage } from '../utils/calculations';
 import { toDateKey } from '../utils/dates';
@@ -10,45 +9,19 @@ import { parseAmount, validateTipEntry } from '../utils/validation';
 import AppButton from './AppButton';
 import AppInput from './AppInput';
 import Card from './Card';
-import ChoiceChips from './ChoiceChips';
 import DateStepper from './DateStepper';
 import SectionLabel from './SectionLabel';
 
-const SHIFT_OPTIONS = SHIFTS.map((shift) => ({ value: shift, label: shift }));
-const AFTERNOON_HOUR = 15;
-
-/** A blank form: today's date and the shift that matches the time of day. */
-function emptyForm() {
-  return {
-    shiftDate: toDateKey(),
-    shift: new Date().getHours() < AFTERNOON_HOUR ? SHIFTS[0] : SHIFTS[1],
-    billAmount: '',
-    tipAmount: '',
-    partySize: '',
-  };
-}
-
-/** Turns a saved entry back into the text values the form edits. */
-function formFromEntry(entry) {
-  return {
-    shiftDate: entry.shiftDate,
-    shift: entry.shift,
-    billAmount: entry.billAmount.toFixed(2),
-    tipAmount: entry.tipAmount.toFixed(2),
-    partySize: String(entry.partySize),
-  };
-}
+const emptyForm = () => ({ shiftDate: toDateKey(), billAmount: '', tipAmount: '', partySize: '' });
 
 /**
- * The tip entry form, shared by "Log a tip" (new entry) and "Edit entry".
- * It validates the input, works out the tip percentage as the server types,
- * and hands the values to `onSubmit`.
+ * The "log a tip" form. It validates the input, works out the tip percentage
+ * as the server types, and hands the values to `onSubmit`.
  *
- * @param {Object} entry existing entry to edit; leave out for a new entry
  * @param {Function} onSubmit async (form) => void. Throw to keep the form as it is.
  */
-export default function TipForm({ entry, submitLabel, onSubmit, footnote }) {
-  const [form, setForm] = useState(() => (entry ? formFromEntry(entry) : emptyForm()));
+export default function TipForm({ onSubmit }) {
+  const [form, setForm] = useState(emptyForm);
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
@@ -70,7 +43,7 @@ export default function TipForm({ entry, submitLabel, onSubmit, footnote }) {
     setSaving(true);
     try {
       await onSubmit(form);
-      if (!entry) setForm(emptyForm());
+      setForm(emptyForm());
     } catch {
       // The screen has already told the user what went wrong; keep their input.
     } finally {
@@ -82,14 +55,6 @@ export default function TipForm({ entry, submitLabel, onSubmit, footnote }) {
     <View>
       <SectionLabel>Shift date</SectionLabel>
       <DateStepper value={form.shiftDate} onChange={(value) => setField('shiftDate', value)} error={errors.shiftDate} />
-
-      <SectionLabel>Shift</SectionLabel>
-      <ChoiceChips
-        options={SHIFT_OPTIONS}
-        value={form.shift}
-        onChange={(value) => setField('shift', value)}
-        style={styles.shifts}
-      />
 
       <AppInput
         label="Bill amount (R)"
@@ -123,14 +88,13 @@ export default function TipForm({ entry, submitLabel, onSubmit, footnote }) {
         </Text>
       </Card>
 
-      <AppButton title={submitLabel} onPress={handleSubmit} loading={saving} />
-      {footnote ? <Text style={styles.footnote}>{footnote}</Text> : null}
+      <AppButton title="Save tip" onPress={handleSubmit} loading={saving} />
+      <Text style={styles.footnote}>No signal? The tip saves on your phone and syncs later.</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  shifts: { marginBottom: spacing.lg },
   percentage: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -138,7 +102,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   percentageLabel: { color: colors.primaryDark, fontFamily: fonts.regular, fontSize: fontSizes.md },
-  percentageValue: { color: colors.primaryDark, fontFamily: fonts.medium, fontSize: fontSizes.md },
+  percentageValue: { color: colors.primaryDark, fontFamily: fonts.semiBold, fontSize: fontSizes.lg },
   footnote: {
     color: colors.textMuted,
     fontFamily: fonts.regular,

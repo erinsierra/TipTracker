@@ -1,19 +1,7 @@
 /**
- * Pure business logic for Tip Tracker: tip maths, averages, benchmark
- * comparison and chart data. No Firebase or UI code lives here, which keeps
- * these functions easy to test (see /tests).
+ * Pure tip maths and list helpers. No Firebase or UI code lives here,
+ * which keeps these functions easy to test (see /tests).
  */
-import { BENCHMARK_TOLERANCE } from '../config/constants';
-import {
-  addDays,
-  addMonths,
-  formatShortDate,
-  monthLabel,
-  startOfMonth,
-  startOfWeek,
-  toDateKey,
-  weekdayLabel,
-} from './dates';
 
 /** Rounds to the given number of decimals (2 by default, for rand values). */
 export function roundTo(value, decimals = 2) {
@@ -42,76 +30,6 @@ export function averageTipPercentage(entries) {
 /** Total rand value of the tips in the given entries. */
 export function totalTips(entries) {
   return roundTo(entries.reduce((sum, entry) => sum + entry.tipAmount, 0));
-}
-
-/** Keeps entries whose shift date falls inside the range (both ends included). */
-export function filterByDateRange(entries, startKey, endKey) {
-  return entries.filter(
-    (entry) => (!startKey || entry.shiftDate >= startKey) && (!endKey || entry.shiftDate <= endKey)
-  );
-}
-
-/**
- * Compares a server's average with the benchmark.
- * @returns {'above' | 'near' | 'below' | null} null when either value is missing.
- */
-export function compareToBenchmark(average, benchmark) {
-  if (average == null || benchmark == null) return null;
-  const difference = average - benchmark;
-  if (Math.abs(difference) <= BENCHMARK_TOLERANCE) return 'near';
-  return difference > 0 ? 'above' : 'below';
-}
-
-/**
- * Builds the bars for the earnings trend chart.
- * @param {Array} entries tip entries
- * @param {'daily' | 'weekly' | 'monthly'} mode
- * @param {string} todayKey 'YYYY-MM-DD' (passed in so the function is testable)
- * @returns {Array<{ key: string, label: string, total: number }>} oldest bar first
- */
-export function buildTrend(entries, mode, todayKey = toDateKey()) {
-  let buckets;
-
-  if (mode === 'weekly') {
-    const thisWeek = startOfWeek(todayKey);
-    buckets = Array.from({ length: 6 }, (_, i) => {
-      const start = addDays(thisWeek, (i - 5) * 7);
-      return { key: start, label: formatShortDate(start), start, end: addDays(start, 6) };
-    });
-  } else if (mode === 'monthly') {
-    buckets = Array.from({ length: 6 }, (_, i) => {
-      const start = addMonths(todayKey, i - 5);
-      return { key: start, label: monthLabel(start), start, end: addDays(addMonths(start, 1), -1) };
-    });
-  } else {
-    buckets = Array.from({ length: 7 }, (_, i) => {
-      const day = addDays(todayKey, i - 6);
-      return { key: day, label: weekdayLabel(day), start: day, end: day };
-    });
-  }
-
-  return buckets.map(({ key, label, start, end }) => ({
-    key,
-    label,
-    total: totalTips(filterByDateRange(entries, start, end)),
-  }));
-}
-
-/**
- * Turns a history filter choice into a date range.
- * @param {'7d' | '30d' | 'month' | 'all'} filter
- */
-export function rangeForFilter(filter, todayKey = toDateKey()) {
-  switch (filter) {
-    case '7d':
-      return { start: addDays(todayKey, -6), end: todayKey };
-    case '30d':
-      return { start: addDays(todayKey, -29), end: todayKey };
-    case 'month':
-      return { start: startOfMonth(todayKey), end: todayKey };
-    default:
-      return { start: null, end: null };
-  }
 }
 
 /** Sorts entries newest first: by shift date, then by the time they were created. */

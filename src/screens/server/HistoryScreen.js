@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 import Card from '../../components/Card';
-import ChoiceChips from '../../components/ChoiceChips';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
 import LoadingView from '../../components/LoadingView';
@@ -12,17 +11,10 @@ import TipRow from '../../components/TipRow';
 import { useTips } from '../../context/TipsContext';
 import { useToast } from '../../context/ToastContext';
 import { colors, fontSizes, fonts, spacing } from '../../theme/theme';
-import { averageTipPercentage, filterByDateRange, rangeForFilter, totalTips } from '../../utils/calculations';
+import { averageTipPercentage, totalTips } from '../../utils/calculations';
 import { formatLongDate } from '../../utils/dates';
 import { getDataErrorMessage } from '../../utils/errors';
 import { formatPercent, formatRand } from '../../utils/format';
-
-const FILTERS = [
-  { value: '7d', label: '7 days' },
-  { value: '30d', label: '30 days' },
-  { value: 'month', label: 'Month' },
-  { value: 'all', label: 'All' },
-];
 
 /** One figure in the summary card. */
 function Stat({ label, value }) {
@@ -34,37 +26,23 @@ function Stat({ label, value }) {
   );
 }
 
-/**
- * The server's tip history, filtered by date range.
- * Tap an entry to edit it, or use the bin icon to delete it.
- */
-export default function HistoryScreen({ navigation }) {
+/** Every tip the server has logged, newest first, with totals. Use the bin icon to delete an entry. */
+export default function HistoryScreen() {
   const { entries, loading, isOnline, pendingCount, removeTip } = useTips();
   const showToast = useToast();
-  const [filter, setFilter] = useState('30d');
   const [entryToDelete, setEntryToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  const visibleEntries = useMemo(() => {
-    const { start, end } = rangeForFilter(filter);
-    return filterByDateRange(entries, start, end);
-  }, [entries, filter]);
-
-  const average = averageTipPercentage(visibleEntries);
-
-  const openEntry = (entry) => {
-    if (entry.synced === false) {
-      showToast('This entry can be edited once it has synced.', 'info');
-      return;
-    }
-    navigation.navigate('EditTip', { entryId: entry.id });
-  };
+  const summary = useMemo(
+    () => ({ count: entries.length, total: totalTips(entries), average: averageTipPercentage(entries) }),
+    [entries]
+  );
 
   const handleDelete = async () => {
     setDeleting(true);
     try {
       await removeTip(entryToDelete);
-      showToast('Tip entry deleted.');
+      showToast('Tip deleted.');
     } catch (error) {
       showToast(getDataErrorMessage(error), 'error');
     } finally {
@@ -73,43 +51,33 @@ export default function HistoryScreen({ navigation }) {
     }
   };
 
-  if (loading) return <LoadingView message="Loading your history…" />;
+  if (loading) return <LoadingView message="Loading your tips…" />;
 
   return (
     <ScreenLayout title="Tip history" scroll={false}>
       <FlatList
-        data={visibleEntries}
+        data={entries}
         keyExtractor={(entry) => entry.id}
         contentContainerStyle={styles.content}
         ListHeaderComponent={
           <>
             <OfflineNotice isOnline={isOnline} pendingCount={pendingCount} />
-            <ChoiceChips options={FILTERS} value={filter} onChange={setFilter} style={styles.filters} />
             <Card style={styles.summary}>
-              <Stat label="Entries" value={String(visibleEntries.length)} />
-              <Stat label="Total tips" value={formatRand(totalTips(visibleEntries))} />
-              <Stat label="Average tip" value={average == null ? '-' : formatPercent(average)} />
+              <Stat label="Tips" value={String(summary.count)} />
+              <Stat label="Total" value={formatRand(summary.total)} />
+              <Stat label="Average" value={summary.average == null ? '-' : formatPercent(summary.average)} />
             </Card>
           </>
         }
-        renderItem={({ item }) => (
-          <TipRow entry={item} onPress={() => openEntry(item)} onDelete={() => setEntryToDelete(item)} />
-        )}
-        ListEmptyComponent={
-          <EmptyState
-            title="No entries in this period"
-            message={entries.length ? 'Try a longer date range.' : 'Tips you log will be listed here.'}
-          />
-        }
+        renderItem={({ item }) => <TipRow entry={item} onDelete={() => setEntryToDelete(item)} />}
+        ListEmptyComponent={<EmptyState title="No tips yet" message="Tips you log will be listed here." />}
       />
 
       <ConfirmDialog
         visible={Boolean(entryToDelete)}
-        title="Delete this entry?"
+        title="Delete this tip?"
         message={
-          entryToDelete
-            ? `The ${entryToDelete.shift.toLowerCase()} shift entry for ${formatLongDate(entryToDelete.shiftDate)} will be removed for good.`
-            : ''
+          entryToDelete ? `The entry for ${formatLongDate(entryToDelete.shiftDate)} will be removed for good.` : ''
         }
         confirmLabel="Delete"
         destructive
@@ -123,9 +91,8 @@ export default function HistoryScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   content: { padding: spacing.xl },
-  filters: { marginBottom: spacing.lg },
   summary: { flexDirection: 'row', marginBottom: spacing.md },
   stat: { flex: 1, alignItems: 'center' },
-  statValue: { color: colors.text, fontFamily: fonts.medium, fontSize: fontSizes.md },
+  statValue: { color: colors.text, fontFamily: fonts.semiBold, fontSize: fontSizes.md },
   statLabel: { color: colors.primaryDark, fontFamily: fonts.regular, fontSize: fontSizes.xs },
 });

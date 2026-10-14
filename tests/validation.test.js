@@ -68,10 +68,14 @@ describe('amounts', () => {
     expect(validatePercentage('x')).toBeTruthy();
     expect(validatePercentage('12.5')).toBeNull();
   });
+});
 
-  test('party size must be a whole number from 1', () => {
+describe('party size', () => {
+  test('must be a whole number from 1', () => {
     expect(validatePartySize('0')).toBeTruthy();
     expect(validatePartySize('2.5')).toBeTruthy();
+    expect(validatePartySize('')).toBeTruthy();
+    expect(validatePartySize('101')).toBeTruthy();
     expect(validatePartySize('4')).toBeNull();
   });
 });

@@ -1,13 +1,12 @@
 /**
- * Central design tokens for Tip Tracker.
- * Colours follow the terracotta-and-cream wireframes from Deliverable 3.
- * Every screen and component reads from here so the styling stays consistent.
+ * Design tokens. Every screen and component reads from here so the look stays consistent.
+ * Palette: terracotta and cream.
  */
 export const colors = {
-  primary: '#D4552B', // terracotta - headers and main buttons
+  primary: '#D4552B',
   primaryDark: '#B24321',
   primarySoft: '#E98A66',
-  cream: '#FAEBD7', // summary cards
+  cream: '#FAEBD7',
   creamBorder: '#F0D2A8',
   background: '#FFFFFF',
   text: '#2B2420',
