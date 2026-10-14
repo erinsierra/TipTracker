@@ -1,0 +1,149 @@
+import { useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+
+import { SHIFTS } from '../config/constants';
+import { colors, fontSizes, fonts, spacing } from '../theme/theme';
+import { calculateTipPercentage } from '../utils/calculations';
+import { toDateKey } from '../utils/dates';
+import { formatPercent } from '../utils/format';
+import { parseAmount, validateTipEntry } from '../utils/validation';
+import AppButton from './AppButton';
+import AppInput from './AppInput';
+import Card from './Card';
+import ChoiceChips from './ChoiceChips';
+import DateStepper from './DateStepper';
+import SectionLabel from './SectionLabel';
+
+const SHIFT_OPTIONS = SHIFTS.map((shift) => ({ value: shift, label: shift }));
+const AFTERNOON_HOUR = 15;
+
+/** A blank form: today's date and the shift that matches the time of day. */
+function emptyForm() {
+  return {
+    shiftDate: toDateKey(),
+    shift: new Date().getHours() < AFTERNOON_HOUR ? SHIFTS[0] : SHIFTS[1],
+    billAmount: '',
+    tipAmount: '',
+    partySize: '',
+  };
+}
+
+/** Turns a saved entry back into the text values the form edits. */
+function formFromEntry(entry) {
+  return {
+    shiftDate: entry.shiftDate,
+    shift: entry.shift,
+    billAmount: entry.billAmount.toFixed(2),
+    tipAmount: entry.tipAmount.toFixed(2),
+    partySize: String(entry.partySize),
+  };
+}
+
+/**
+ * The tip entry form, shared by "Log a tip" (new entry) and "Edit entry".
+ * It validates the input, works out the tip percentage as the server types,
+ * and hands the values to `onSubmit`.
+ *
+ * @param {Object} entry existing entry to edit; leave out for a new entry
+ * @param {Function} onSubmit async (form) => void. Throw to keep the form as it is.
+ */
+export default function TipForm({ entry, submitLabel, onSubmit, footnote }) {
+  const [form, setForm] = useState(() => (entry ? formFromEntry(entry) : emptyForm()));
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
+
+  const bill = parseAmount(form.billAmount);
+  const tip = parseAmount(form.tipAmount);
+  const canShowPercentage = bill > 0 && tip >= 0 && tip <= bill;
+
+  /** Updates one field and clears its error once the user starts fixing it. */
+  const setField = (field, value) => {
+    setForm((current) => ({ ...current, [field]: value }));
+    if (errors[field]) setErrors((current) => ({ ...current, [field]: undefined }));
+  };
+
+  const handleSubmit = async () => {
+    const found = validateTipEntry(form);
+    setErrors(found);
+    if (Object.keys(found).length) return;
+
+    setSaving(true);
+    try {
+      await onSubmit(form);
+      if (!entry) setForm(emptyForm());
+    } catch {
+      // The screen has already told the user what went wrong; keep their input.
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <View>
+      <SectionLabel>Shift date</SectionLabel>
+      <DateStepper value={form.shiftDate} onChange={(value) => setField('shiftDate', value)} error={errors.shiftDate} />
+
+      <SectionLabel>Shift</SectionLabel>
+      <ChoiceChips
+        options={SHIFT_OPTIONS}
+        value={form.shift}
+        onChange={(value) => setField('shift', value)}
+        style={styles.shifts}
+      />
+
+      <AppInput
+        label="Bill amount (R)"
+        placeholder="0.00"
+        keyboardType="decimal-pad"
+        value={form.billAmount}
+        onChangeText={(value) => setField('billAmount', value)}
+        error={errors.billAmount}
+      />
+      <AppInput
+        label="Tip received (R)"
+        placeholder="0.00"
+        keyboardType="decimal-pad"
+        value={form.tipAmount}
+        onChangeText={(value) => setField('tipAmount', value)}
+        error={errors.tipAmount}
+      />
+      <AppInput
+        label="Party size"
+        placeholder="Number of people"
+        keyboardType="number-pad"
+        value={form.partySize}
+        onChangeText={(value) => setField('partySize', value)}
+        error={errors.partySize}
+      />
+
+      <Card style={styles.percentage}>
+        <Text style={styles.percentageLabel}>Tip % (auto)</Text>
+        <Text accessibilityLiveRegion="polite" style={styles.percentageValue}>
+          {canShowPercentage ? formatPercent(calculateTipPercentage(bill, tip)) : '-'}
+        </Text>
+      </Card>
+
+      <AppButton title={submitLabel} onPress={handleSubmit} loading={saving} />
+      {footnote ? <Text style={styles.footnote}>{footnote}</Text> : null}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  shifts: { marginBottom: spacing.lg },
+  percentage: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  percentageLabel: { color: colors.primaryDark, fontFamily: fonts.regular, fontSize: fontSizes.md },
+  percentageValue: { color: colors.primaryDark, fontFamily: fonts.medium, fontSize: fontSizes.md },
+  footnote: {
+    color: colors.textMuted,
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.xs,
+    textAlign: 'center',
+    marginTop: spacing.sm,
+  },
+});
