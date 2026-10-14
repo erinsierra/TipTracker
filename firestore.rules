@@ -1,0 +1,75 @@
+rules_version = '2';
+
+// Security rules for Tip Tracker.
+// Publish with: Firebase console > Firestore Database > Rules > paste > Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // A tip entry must have sensible values and belong to the person saving it.
+    function isValidTip(tip) {
+      return tip.userId == request.auth.uid
+        && tip.restaurantId is string
+        && tip.shiftDate is string
+        && tip.shift in ['Morning', 'Evening']
+        && tip.billAmount is number && tip.billAmount > 0
+        && tip.tipAmount is number && tip.tipAmount >= 0 && tip.tipAmount <= tip.billAmount
+        && tip.partySize is int && tip.partySize >= 1
+        && tip.tipPercentage is number;
+    }
+
+    // Profiles: servers manage their own. Nobody can make themselves an administrator.
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && request.resource.data.role == 'server';
+      allow update: if isOwner(userId) && request.resource.data.role == resource.data.role;
+      allow delete: if isOwner(userId);
+    }
+
+    // Tip entries: private to the server who logged them.
+    // Administrators may read them to calculate the anonymised benchmark.
+    match /tipEntries/{tipId} {
+      allow read: if signedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if signedIn() && isValidTip(request.resource.data);
+      allow update: if signedIn()
+        && resource.data.userId == request.auth.uid
+        && isValidTip(request.resource.data);
+      allow delete: if signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Benchmarks and restaurants hold no personal data, so guests can read them.
+    match /benchmarks/{benchmarkId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /restaurants/{restaurantId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Calculator sessions: guests can add an anonymous record. Only administrators can read them.
+    match /calculatorSessions/{sessionId} {
+      allow create: if request.resource.data.keys().hasOnly(
+          ['displayVariantId', 'billAmount', 'suggestedPercentage', 'selectedPercentage', 'createdAt'])
+        && request.resource.data.displayVariantId in ['A', 'B']
+        && request.resource.data.billAmount is number && request.resource.data.billAmount > 0
+        && request.resource.data.selectedPercentage is number
+        && request.resource.data.selectedPercentage >= 0
+        && request.resource.data.selectedPercentage <= 100;
+      allow read: if isAdmin();
+    }
+  }
+}
