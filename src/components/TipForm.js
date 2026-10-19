@@ -54,7 +54,7 @@ export default function TipForm({ entry, submitLabel = 'Save tip', onSubmit }) {
     setSaving(true);
     try {
       await onSubmit(form);
-        if (!entry) setForm(emptyForm());
+      if (!entry) setForm(emptyForm());
     } catch {
       // The screen has already told the user what went wrong; keep their input.
     } finally {
