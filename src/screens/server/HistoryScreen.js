@@ -27,7 +27,7 @@ function Stat({ label, value }) {
 }
 
 /** Every tip the server has logged, newest first, with totals. Use the bin icon to delete an entry. */
-export default function HistoryScreen() {
+export default function HistoryScreen({ navigation }) {
   const { entries, loading, isOnline, pendingCount, removeTip } = useTips();
   const showToast = useToast();
   const [entryToDelete, setEntryToDelete] = useState(null);
@@ -38,6 +38,14 @@ export default function HistoryScreen() {
     [entries]
   );
 
+  const openEntry = (entry) => {
+    if (entry.synced === false) {
+      showToast('This tip can be edited once it has synced.', 'info');
+      return;
+    }
+    navigation.navigate('EditTip', { entryId: entry.id });
+  };
+  
   const handleDelete = async () => {
     setDeleting(true);
     try {
@@ -69,7 +77,9 @@ export default function HistoryScreen() {
             </Card>
           </>
         }
-        renderItem={({ item }) => <TipRow entry={item} onDelete={() => setEntryToDelete(item)} />}
+        renderItem={({ item }) => (
+          <TipRow entry={item} onPress={() => openEntry(item)} onDelete={() => setEntryToDelete(item)} />
+        )}
         ListEmptyComponent={<EmptyState title="No tips yet" message="Tips you log will be listed here." />}
       />
 
