@@ -9,6 +9,7 @@ import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import CalculatorScreen from '../screens/CalculatorScreen';
 import HomeScreen from '../screens/HomeScreen';
+import EditTipScreen from '../screens/server/EditTipScreen';
 import ServerTabs from './ServerTabs';
 
 const Stack = createNativeStackNavigator();
@@ -34,6 +35,7 @@ function ServerStack() {
     <TipsProvider>
       <Stack.Navigator screenOptions={SCREEN_OPTIONS}>
         <Stack.Screen name="Tabs" component={ServerTabs} />
+        <Stack.Screen name="EditTip" component={EditTipScreen} />
         {isAdmin ? <Stack.Screen name="AdminAnalytics" component={AdminAnalyticsScreen} /> : null}
       </Stack.Navigator>
     </TipsProvider>
