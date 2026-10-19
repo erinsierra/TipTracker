@@ -15,7 +15,7 @@ import {
   removePendingTip,
   syncPendingTips,
 } from '../services/offlineQueue';
-import { deleteTip, newTipId, saveTip, subscribeToTips } from '../services/tipService';
+import { deleteTip, newTipId, saveTip, subscribeToTips, updateTip } from '../services/tipService';
 import { calculateTipPercentage, sortNewestFirst } from '../utils/calculations';
 import { isOnlineState, withTimeout } from '../utils/network';
 import { parseAmount } from '../utils/validation';
@@ -125,6 +125,9 @@ export function TipsProvider({ children }) {
     [isOnline, userId]
   );
 
+    /** Changes an entry that is already in the cloud. */
+  const editTip = useCallback((id, form) => withTimeout(updateTip(id, toEntryFields(form)), NETWORK_TIMEOUT_MS), []);
+  
   /** Deletes an entry from the cloud, or from the queue if it has not synced yet. */
   const removeTip = useCallback(
     async (entry) => {
@@ -140,8 +143,8 @@ export function TipsProvider({ children }) {
   const value = useMemo(() => {
     const pendingIds = new Set(pendingEntries.map((entry) => entry.id));
     const entries = sortNewestFirst([...pendingEntries, ...syncedEntries.filter((entry) => !pendingIds.has(entry.id))]);
-    return { entries, pendingCount: pendingEntries.length, loading, isOnline, addTip, removeTip, syncNow };
-  }, [syncedEntries, pendingEntries, loading, isOnline, addTip, removeTip, syncNow]);
+    return { entries, pendingCount: pendingEntries.length, loading, isOnline, addTip, editTip, removeTip, syncNow };
+  }, [syncedEntries, pendingEntries, loading, isOnline, addTip, editTip, removeTip, syncNow]);
 
   return <TipsContext.Provider value={value}>{children}</TipsContext.Provider>;
 }
