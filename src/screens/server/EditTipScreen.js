@@ -32,7 +32,7 @@ export default function EditTipScreen({ navigation, route }) {
   };
 
   return (
-    <ScreenLayout title="Edit tip">
+    <ScreenLayout title="Edit tip" onBack={navigation.goBack}>
       <TipForm entry={entry} submitLabel="Save changes" onSubmit={handleSubmit} />
     </ScreenLayout>
   );
