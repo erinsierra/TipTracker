@@ -2,6 +2,7 @@
  * App-wide feedback messages. Any screen can call showToast() to confirm
  * that an action worked or explain why it failed.
  */
+// Toast types: success (green), error (red), info (dark) 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, Text } from 'react-native';
