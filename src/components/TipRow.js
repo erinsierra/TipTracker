@@ -37,6 +37,7 @@ export default function TipRow({ entry, onPress, onDelete }) {
           ) : null}
         </View>
         <Text style={styles.amount}>{formatRand(entry.tipAmount)}</Text>
+        {onPress ? <Ionicons name="create-outline" size={20} color={colors.primaryDark} style={styles.edit} /> : null}
       </Pressable>
 
       {onDelete ? (
@@ -66,6 +67,7 @@ const styles = StyleSheet.create({
   title: { color: colors.text, fontFamily: fonts.medium, fontSize: fontSizes.md },
   subtitle: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: fontSizes.xs },
   amount: { color: colors.primaryDark, fontFamily: fonts.semiBold, fontSize: fontSizes.md },
+  edit: { marginLeft: spacing.md },
   syncTag: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginTop: 2 },
   syncText: { color: colors.warning, fontFamily: fonts.regular, fontSize: fontSizes.xs },
   delete: { paddingLeft: spacing.lg, paddingVertical: spacing.md },
