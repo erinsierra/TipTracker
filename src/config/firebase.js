@@ -37,4 +37,4 @@ function createAuth(app) {
 const app = isFirebaseConfigured ? (getApps().length ? getApp() : initializeApp(firebaseConfig)) : null;
 
 export const auth = app ? createAuth(app) : null;
-export const db = app ? getFirestore(app) : null;
+export const db = app ? getFirestore(app, 'default') : null;
