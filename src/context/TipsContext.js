@@ -112,10 +112,12 @@ export function TipsProvider({ children }) {
       const entry = {
       userId,
       shiftDate: String(form.shiftDate || ''),
-      billAmount: parseFloat(form.billAmount),
-      tipAmount: parseFloat(form.tipAmount),
+      billAmount: parseAmount(form.billAmount),
+      tipAmount: parseAmount(form.tipAmount),
       partySize: parseInt(form.partySize, 10),
-      tipPercentage: parseFloat(form.tipPercentage),
+      tipPercentage: calculateTipPercentage(
+        billAmount,
+        tipAmount),
       createdAt: Date.now(),
     };
 
