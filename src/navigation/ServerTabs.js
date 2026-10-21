@@ -9,7 +9,7 @@ import { colors, fontSizes, fonts, spacing } from '../theme/theme';
 
 const Tab = createBottomTabNavigator();
 
-/** Height of the bar above the phone's own gesture area. Tall enough for an icon and a label. */
+// Tab bar height above the phone's gesture area, fits an icon and label
 const TAB_BAR_HEIGHT = 64;
 
 const TAB_ICONS = {
@@ -18,7 +18,7 @@ const TAB_ICONS = {
   Account: 'person',
 };
 
-/** The three signed-in screens, reachable from the bar at the bottom. */
+// Bottom tab bar with the three signed-in screens
 export default function ServerTabs() {
   const insets = useSafeAreaInsets();
 
