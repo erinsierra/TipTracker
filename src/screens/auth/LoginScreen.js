@@ -9,7 +9,7 @@ import { getAuthErrorMessage, login } from '../../services/authService';
 import { spacing } from '../../theme/theme';
 import { validateEmail } from '../../utils/validation';
 
-/** Sign-in for returning servers. A successful login opens the dashboard automatically. */
+// Sign-in for returning servers, opens the dashboard on success
 export default function LoginScreen({ navigation }) {
   const showToast = useToast();
   const [email, setEmail] = useState('');
