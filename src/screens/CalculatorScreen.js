@@ -16,19 +16,17 @@ import { withTimeout } from '../utils/network';
 import { parseAmount, validateAmount, validatePercentage } from '../utils/validation';
 
 const CUSTOM = 'custom';
-/** Usage logging must never hold a customer up, so it gets a short time limit. */
+// Short time limit so logging never holds up the customer
 const LOG_TIMEOUT_MS = 4000;
 
-/** Each customer is randomly shown one of the two display variants (A/B test). */
+// Randomly picks display variant A or B (A/B test)
 function pickVariant() {
   return Math.random() < 0.5 ? DISPLAY_VARIANTS.A : DISPLAY_VARIANTS.B;
 }
 
-/**
- * Customer tip calculator. No account is needed. The one-tap choices follow the
- * South African norm; "Other" takes any percentage. When the customer taps Done,
- * an anonymous record of the session is saved for the A/B analytics.
- */
+// Customer tip calculator, no account needed
+// Quick options follow the SA norm, "Other" allows any percentage
+// Tapping Done saves an anonymous session for the A/B analytics
 export default function CalculatorScreen({ navigation }) {
   const showToast = useToast();
   const [variant] = useState(pickVariant);
@@ -45,11 +43,11 @@ export default function CalculatorScreen({ navigation }) {
   const tip = hasBill && hasPercentage ? calculateTipAmount(bill, percentage) : 0;
   const total = hasBill ? roundTo(bill + tip) : 0;
 
-  // Show a message as soon as the customer has typed something that does not work.
+  // Shows an error as soon as the input is invalid
   const billError = errors.bill ?? (billText.trim() ? validateAmount(billText, 'bill amount') : null);
   const customError = errors.custom ?? (choice === CUSTOM && customText.trim() ? validatePercentage(customText) : null);
 
-  // Variant B adds the rand value under each percentage and the South African norm.
+  // Variant B also shows the rand amount and the SA norm
   const showAmounts = variant.id === DISPLAY_VARIANTS.B.id;
   const options = [
     ...variant.suggestedPercentages.map((value) => ({
@@ -83,7 +81,7 @@ export default function CalculatorScreen({ navigation }) {
         LOG_TIMEOUT_MS
       );
     } catch {
-      // Logging is only for anonymous statistics, so a failure is not shown to the customer.
+      // Logging is just for stats, so failures aren't shown to the customer
     }
     setFinishing(false);
     showToast(`Tip ${formatRand(tip)} - total to pay ${formatRand(total)}. Thank you!`);
@@ -144,7 +142,7 @@ export default function CalculatorScreen({ navigation }) {
       </View>
 
       <AppButton title="Done" onPress={handleDone} loading={finishing} style={styles.done} />
-      
+
     </ScreenLayout>
   );
 }
