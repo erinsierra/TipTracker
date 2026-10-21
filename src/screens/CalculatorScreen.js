@@ -47,7 +47,7 @@ export default function CalculatorScreen({ navigation }) {
   const billError = errors.bill ?? (billText.trim() ? validateAmount(billText, 'bill amount') : null);
   const customError = errors.custom ?? (choice === CUSTOM && customText.trim() ? validatePercentage(customText) : null);
 
-  // Variant B also shows the rand amount and the SA norm
+  // Variant B also shows the rand amount under each percentage
   const showAmounts = variant.id === DISPLAY_VARIANTS.B.id;
   const options = [
     ...variant.suggestedPercentages.map((value) => ({
@@ -106,12 +106,10 @@ export default function CalculatorScreen({ navigation }) {
       />
 
       <SectionLabel>Tip</SectionLabel>
+      <Text style={styles.guide}>
+        SA tip norm: {SA_NORM.min}-{SA_NORM.max}%
+      </Text>
       <ChoiceChips options={options} value={choice} onChange={setChoice} style={styles.chips} />
-      {showAmounts ? (
-        <Text style={styles.guide}>
-          Most South Africans tip {SA_NORM.min}-{SA_NORM.max}% for table service.
-        </Text>
-      ) : null}
 
       {choice === CUSTOM ? (
         <AppInput
@@ -149,7 +147,7 @@ export default function CalculatorScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   chips: { marginBottom: spacing.md },
-  guide: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: fontSizes.sm, marginBottom: spacing.lg },
+  guide: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: fontSizes.sm, marginBottom: spacing.sm },
   result: {
     backgroundColor: colors.primary,
     borderRadius: radius.md,
