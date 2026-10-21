@@ -20,7 +20,7 @@ export const DISPLAY_VARIANTS = {
   B: {
     id: 'B',
     name: 'Percentage with rand amount',
-    description: 'Suggested tips show the rand amount and the South African norm.',
+        description: 'Suggested tips also show the rand amount.',
     suggestedPercentages: TIP_PRESETS,
   },
 };
