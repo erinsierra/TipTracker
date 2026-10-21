@@ -1,7 +1,7 @@
 // User profiles, stored at users/{uid}
 // Holds the server's name and role (server or admin)
 // Only admins can see the A/B analytics
-import { deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 
 import { COLLECTIONS, ROLES } from '../config/constants';
 import { db } from '../config/firebase';
@@ -24,4 +24,17 @@ export function subscribeToUserProfile(uid, onChange, onError) {
 
 export function deleteUserProfile(uid) {
   return deleteDoc(userRef(uid));
+}
+
+// Read (admin): gets all user profiles, sorted by name
+export async function fetchAllUsers() {
+  const snapshot = await getDocs(collection(db, COLLECTIONS.users));
+  return snapshot.docs
+    .map((item) => ({ id: item.id, ...item.data() }))
+    .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+}
+
+// Update (admin): changes another user's role
+export function updateUserRole(uid, role) {
+  return updateDoc(userRef(uid), { role });
 }
