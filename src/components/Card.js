@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { colors, radius, spacing } from '../theme/theme';
 
-/** The cream panel used for summaries and totals. */
+// Cream panel for summaries and totals
 export default function Card({ children, style }) {
   return <View style={[styles.card, style]}>{children}</View>;
 }
