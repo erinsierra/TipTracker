@@ -9,7 +9,7 @@ import { getAuthErrorMessage, registerServer } from '../../services/authService'
 import { colors, fontSizes, fonts, spacing } from '../../theme/theme';
 import { validateEmail, validateName, validatePassword, validatePasswordMatch } from '../../utils/validation';
 
-/** Account creation for new servers. */
+// Account creation for new servers
 export default function RegisterScreen({ navigation }) {
   const showToast = useToast();
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmation: '' });
