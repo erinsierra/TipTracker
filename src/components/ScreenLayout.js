@@ -5,13 +5,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, fontSizes, fonts, radius, spacing } from '../theme/theme';
 
-/**
- * The shared page frame: terracotta header with an optional back arrow,
- * then the page content. Using it on every screen keeps the layout consistent.
- *
- * @param {Function} onBack shows a back arrow when provided
- * @param {boolean} scroll set to false for screens that manage their own list
- */
+// Shared page layout: terracotta header, optional back arrow, then content
+// Used on every screen to keep the layout consistent
+// onBack: shows a back arrow when provided
+// scroll: set to false for screens with their own list
 export default function ScreenLayout({ title, onBack, scroll = true, children }) {
   const insets = useSafeAreaInsets();
 
