@@ -1,7 +1,5 @@
-/**
- * Firebase set-up. Keys are read from the .env file (see .env.example)
- * so that no secrets are committed with the code.
- */
+// Firebase setup
+// Keys come from the .env file (see .env.example) so no secrets are committed
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import { getAuth, getReactNativePersistence, initializeAuth } from 'firebase/auth';
@@ -17,19 +15,16 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-/** False until the .env file has been filled in. The app then shows a set-up screen. */
+// False until .env is filled in, then the app shows a setup screen
 export const isFirebaseConfigured = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.appId);
 
-/**
- * Creates the auth instance. On a phone the login session is saved in
- * AsyncStorage so the server stays signed in between app launches.
- */
+// Creates auth, on phones the login is saved so users stay signed in
 function createAuth(app) {
   if (Platform.OS === 'web') return getAuth(app);
   try {
     return initializeAuth(app, { persistence: getReactNativePersistence(AsyncStorage) });
   } catch {
-    // Auth was already initialised (happens on fast refresh during development).
+    // Auth already set up (happens on fast refresh in development)
     return getAuth(app);
   }
 }
