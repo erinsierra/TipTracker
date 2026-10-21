@@ -14,7 +14,7 @@ import SectionLabel from './SectionLabel';
 
 const emptyForm = () => ({ shiftDate: toDateKey(), billAmount: '', tipAmount: '', partySize: '' });
 
-/** Turns a saved entry back into the text values the form edits. */
+// Converts a saved entry back into form text values
 const formFromEntry = (entry) => ({
   shiftDate: entry.shiftDate,
   billAmount: entry.billAmount.toFixed(2),
@@ -22,15 +22,11 @@ const formFromEntry = (entry) => ({
   partySize: String(entry.partySize),
 });
 
-/**
- * The tip form, used to log a new tip and to edit an existing one. It validates
- * the input, works out the tip percentage as the server types, and hands the
- * values to `onSubmit`.
- *
- * @param {Object} entry existing tip to edit; leave out for a new tip
- * @param {string} submitLabel text on the save button
- * @param {Function} onSubmit async (form) => void. Throw to keep the form as it is.
- */
+// Form for adding a new tip or editing an existing one
+// Validates input, shows the tip % live, and passes values to onSubmit
+// entry: existing tip to edit (leave out for a new tip)
+// submitLabel: text on the save button
+// onSubmit: async function, throw to keep the form as is
 export default function TipForm({ entry, submitLabel = 'Save tip', onSubmit }) {
   const [form, setForm] = useState(() => (entry ? formFromEntry(entry) : emptyForm()));
   const [errors, setErrors] = useState({});
@@ -40,7 +36,7 @@ export default function TipForm({ entry, submitLabel = 'Save tip', onSubmit }) {
   const tip = parseAmount(form.tipAmount);
   const canShowPercentage = bill > 0 && tip >= 0 && tip <= bill;
 
-  /** Updates one field and clears its error once the user starts fixing it. */
+  // Updates a field and clears its error when the user edits it
   const setField = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
     if (errors[field]) setErrors((current) => ({ ...current, [field]: undefined }));
@@ -56,7 +52,7 @@ export default function TipForm({ entry, submitLabel = 'Save tip', onSubmit }) {
       await onSubmit(form);
       if (!entry) setForm(emptyForm());
     } catch {
-      // The screen has already told the user what went wrong; keep their input.
+      // Screen already showed the error, so keep the user's input
     } finally {
       setSaving(false);
     }
