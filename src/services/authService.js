@@ -1,8 +1,5 @@
-/**
- * Authentication: register, sign in, sign out, password reset and account deletion.
- * Firebase Auth hashes the passwords and issues the session tokens, so the app
- * never stores a password itself.
- */
+// Authentication: register, sign in, sign out, password reset and account deletion
+// Firebase handles password hashing and sessions, so the app never stores passwords
 import {
   EmailAuthProvider,
   createUserWithEmailAndPassword,
@@ -19,7 +16,7 @@ import { clearLocalData } from './offlineQueue';
 import { deleteAllTipsForUser } from './tipService';
 import { createUserProfile, deleteUserProfile } from './userService';
 
-/** Creates the login and the matching profile document for a new server. */
+// Creates the login and profile for a new server
 export async function registerServer({ name, email, password }) {
   const { user } = await createUserWithEmailAndPassword(auth, email.trim(), password);
   await updateProfile(user, { displayName: name.trim() });
@@ -39,10 +36,8 @@ export function requestPasswordReset(email) {
   return sendPasswordResetEmail(auth, email.trim());
 }
 
-/**
- * Permanently deletes the signed-in account and everything it owns.
- * Firebase needs a recent login for this, so the password is checked first.
- */
+// Permanently deletes the account and all its data
+// Firebase needs a recent login, so the password is checked first
 export async function deleteAccount(password) {
   const user = auth.currentUser;
   await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, password));
@@ -53,7 +48,7 @@ export async function deleteAccount(password) {
   await deleteUser(user);
 }
 
-/** Turns a Firebase error into a message a server can act on. */
+// Converts a Firebase error into a user-friendly message
 export function getAuthErrorMessage(error) {
   switch (error?.code) {
     case 'auth/email-already-in-use':
