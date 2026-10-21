@@ -4,6 +4,7 @@ import LoadingView from '../components/LoadingView';
 import { useAuth } from '../context/AuthContext';
 import { TipsProvider } from '../context/TipsContext';
 import AdminAnalyticsScreen from '../screens/admin/AdminAnalyticsScreen';
+import AdminUsersScreen from '../screens/admin/AdminUsersScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
@@ -37,6 +38,7 @@ function ServerStack() {
         <Stack.Screen name="Tabs" component={ServerTabs} />
         <Stack.Screen name="EditTip" component={EditTipScreen} />
         {isAdmin ? <Stack.Screen name="AdminAnalytics" component={AdminAnalyticsScreen} /> : null}
+        {isAdmin ? <Stack.Screen name="AdminUsers" component={AdminUsersScreen} /> : null}
       </Stack.Navigator>
     </TipsProvider>
   );
