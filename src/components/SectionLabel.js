@@ -2,7 +2,7 @@ import { StyleSheet, Text } from 'react-native';
 
 import { colors, fontSizes, fonts, spacing } from '../theme/theme';
 
-/** The small grey upper-case heading used above each group of content. */
+// Small grey uppercase heading above each content group
 export default function SectionLabel({ children, style }) {
   return <Text style={[styles.label, style]}>{children}</Text>;
 }
