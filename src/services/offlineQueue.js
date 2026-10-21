@@ -1,8 +1,6 @@
-/**
- * Offline support. Tips logged without signal wait in a queue on the phone
- * and are uploaded when the connection returns. The last known entries are
- * also cached so the history still opens offline.
- */
+// Offline support
+// Tips logged without signal are queued on the phone and uploaded when back online
+// Recent entries are also cached so history still works offline
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { saveTip } from './tipService';
@@ -21,12 +19,12 @@ async function readJson(key, fallback) {
 
 const writeJson = (key, value) => AsyncStorage.setItem(key, JSON.stringify(value));
 
-/** Entries that have not reached the cloud yet. */
+// Gets entries not yet uploaded to the cloud
 export function getPendingTips(userId) {
   return readJson(pendingKey(userId), []);
 }
 
-/** Adds an entry to the queue and returns the updated queue. */
+// Adds an entry to the queue and returns the updated queue
 export async function addPendingTip(userId, entry) {
   const pending = await getPendingTips(userId);
   const updated = [...pending.filter((item) => item.id !== entry.id), { ...entry, synced: false }];
@@ -34,7 +32,7 @@ export async function addPendingTip(userId, entry) {
   return updated;
 }
 
-/** Removes an entry from the queue and returns the updated queue. */
+// Removes an entry from the queue and returns the updated queue
 export async function removePendingTip(userId, entryId) {
   const pending = await getPendingTips(userId);
   const updated = pending.filter((item) => item.id !== entryId);
@@ -42,11 +40,9 @@ export async function removePendingTip(userId, entryId) {
   return updated;
 }
 
-/**
- * Uploads queued entries one at a time. Stops at the first failure so the
- * remaining entries stay queued for the next attempt.
- * @returns {{ uploaded: number, remaining: Array }}
- */
+// Uploads queued entries one by one
+// Stops at the first failure so the rest stay queued for next time
+// Returns { uploaded, remaining }
 export async function syncPendingTips(userId) {
   let pending = await getPendingTips(userId);
   let uploaded = 0;
@@ -66,7 +62,7 @@ export async function syncPendingTips(userId) {
 export const cacheTips = (userId, entries) => writeJson(entriesKey(userId), entries);
 export const getCachedTips = (userId) => readJson(entriesKey(userId), []);
 
-/** Clears everything stored on the phone for a user (used when an account is deleted). */
+// Clears all local data for a user (used when deleting an account)
 export function clearLocalData(userId) {
   return AsyncStorage.multiRemove([pendingKey(userId), entriesKey(userId)]);
 }
