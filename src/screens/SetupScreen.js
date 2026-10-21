@@ -3,7 +3,7 @@ import { StyleSheet, Text } from 'react-native';
 import ScreenLayout from '../components/ScreenLayout';
 import { colors, fontSizes, fonts, spacing } from '../theme/theme';
 
-/** Shown instead of the app when the Firebase keys have not been added yet. */
+// Shown instead of the app when Firebase keys are missing
 export default function SetupScreen() {
   return (
     <ScreenLayout title="Set-up needed">
