@@ -1,7 +1,5 @@
-/**
- * Design tokens. Every screen and component reads from here so the look stays consistent.
- * Palette: terracotta and cream.
- */
+// Design tokens used across all screens and components for a consistent look
+// Palette: terracotta and cream
 export const colors = {
   primary: '#D4552B',
   primaryDark: '#B24321',
@@ -33,5 +31,5 @@ export const fonts = {
 
 export const fontSizes = { xs: 12, sm: 14, md: 16, lg: 20, xl: 26, xxl: 36 };
 
-/** Minimum touch target height, so buttons are easy to hit on a busy floor. */
+// Minimum button height so they're easy to tap on a busy floor
 export const TOUCH_TARGET = 52;
