@@ -2,10 +2,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, fontSizes, fonts, radius, spacing } from '../theme/theme';
 
-/**
- * A row of options where one is selected (shift, tip percentage, filters).
- * @param {Array<{ value: any, label: string, caption?: string }>} options
- */
+// Row of options where only one can be selected (shift, tip %, filters)
+// Each option: { value, label, caption (optional) }
 export default function ChoiceChips({ options, value, onChange, style }) {
   return (
     <View accessibilityRole="radiogroup" style={[styles.row, style]}>
