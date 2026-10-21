@@ -2,11 +2,9 @@ import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
 import { TOUCH_TARGET, colors, fontSizes, fonts, radius, spacing } from '../theme/theme';
 
-/**
- * The app's button.
- * @param {'primary' | 'outline' | 'text' | 'danger'} variant visual style
- * @param {boolean} loading shows a spinner and blocks repeat taps while work is in progress
- */
+// Reusable app button
+// variant: 'primary' | 'outline' | 'text' | 'danger'
+// loading: shows a spinner and disables taps
 export default function AppButton({ title, onPress, variant = 'primary', loading = false, disabled = false, style }) {
   const isFilled = variant === 'primary' || variant === 'danger';
   const inactive = disabled || loading;
