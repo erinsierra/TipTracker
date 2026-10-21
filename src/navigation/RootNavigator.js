@@ -15,7 +15,7 @@ import ServerTabs from './ServerTabs';
 const Stack = createNativeStackNavigator();
 const SCREEN_OPTIONS = { headerShown: false };
 
-/** Screens anyone can open: the start screen, the guest calculator and sign-in. */
+// Public screens: home, guest calculator and sign-in
 function PublicStack() {
   return (
     <Stack.Navigator screenOptions={SCREEN_OPTIONS}>
@@ -28,7 +28,7 @@ function PublicStack() {
   );
 }
 
-/** Screens for signed-in servers. The analytics screen is only added for administrators. */
+// Screens for signed-in servers, analytics is admin only
 function ServerStack() {
   const { isAdmin } = useAuth();
   return (
@@ -42,11 +42,8 @@ function ServerStack() {
   );
 }
 
-/**
- * Chooses which screens exist based on the sign-in state. Server screens are not
- * mounted for guests, so they cannot be reached without signing in, and signing
- * out clears the back-stack automatically.
- */
+// Picks screens based on sign-in state
+// Guests can't reach server screens, and signing out clears the back history
 export default function RootNavigator() {
   const { user, initialising } = useAuth();
 
