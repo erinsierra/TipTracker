@@ -1,7 +1,6 @@
-/**
- * User profiles, stored at users/{uid}. The profile holds the server's name
- * and their role (server or admin). Only the role decides who sees the A/B analytics.
- */
+// User profiles, stored at users/{uid}
+// Holds the server's name and role (server or admin)
+// Only admins can see the A/B analytics
 import { deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
 
 import { COLLECTIONS, ROLES } from '../config/constants';
@@ -9,12 +8,12 @@ import { db } from '../config/firebase';
 
 const userRef = (uid) => doc(db, COLLECTIONS.users, uid);
 
-/** Every new account starts as a server. */
+// New accounts start with the server role
 export function createUserProfile(uid, { name, email }) {
   return setDoc(userRef(uid), { name, email, role: ROLES.server, createdAt: Date.now() });
 }
 
-/** Listens for profile changes. Returns the function that stops listening. */
+// Listens for profile changes, returns a function to stop listening
 export function subscribeToUserProfile(uid, onChange, onError) {
   return onSnapshot(
     userRef(uid),
