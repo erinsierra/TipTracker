@@ -9,13 +9,14 @@ import { getAuthErrorMessage, requestPasswordReset } from '../../services/authSe
 import { colors, fontSizes, fonts, spacing } from '../../theme/theme';
 import { validateEmail } from '../../utils/validation';
 
-/** Sends a password reset link to the server's email address. */
+// Screen for sending a password reset email.
 export default function ForgotPasswordScreen({ navigation }) {
   const showToast = useToast();
   const [email, setEmail] = useState('');
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Check the email, then ask Firebase to send the reset link
   const handleSend = async () => {
     const emailError = validateEmail(email);
     setError(emailError);

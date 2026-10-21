@@ -9,7 +9,7 @@ import { getAuthErrorMessage, login } from '../../services/authService';
 import { spacing } from '../../theme/theme';
 import { validateEmail } from '../../utils/validation';
 
-/** Sign-in for returning servers. A successful login opens the dashboard automatically. */
+// Sign-in screen. A successful login opens the dashboard automatically.
 export default function LoginScreen({ navigation }) {
   const showToast = useToast();
   const [email, setEmail] = useState('');
@@ -17,6 +17,7 @@ export default function LoginScreen({ navigation }) {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
+  // Check the fields, then sign in with Firebase
   const handleLogin = async () => {
     const found = {};
     const emailError = validateEmail(email);
@@ -70,3 +71,4 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   submit: { marginTop: spacing.sm, marginBottom: spacing.sm },
 });
+
