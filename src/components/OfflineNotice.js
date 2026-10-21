@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { colors, fontSizes, fonts, radius, spacing } from '../theme/theme';
 
-/** A banner that tells the server they are offline or have entries waiting to sync. */
+// Banner shown when the server is offline or has entries waiting to sync
 export default function OfflineNotice({ isOnline, pendingCount }) {
   if (isOnline && !pendingCount) return null;
 
