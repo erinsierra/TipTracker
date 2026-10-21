@@ -14,14 +14,25 @@ import SectionLabel from './SectionLabel';
 
 const emptyForm = () => ({ shiftDate: toDateKey(), billAmount: '', tipAmount: '', partySize: '' });
 
+/** Turns a saved entry back into the text values the form edits. */
+const formFromEntry = (entry) => ({
+  shiftDate: entry.shiftDate,
+  billAmount: entry.billAmount.toFixed(2),
+  tipAmount: entry.tipAmount.toFixed(2),
+  partySize: String(entry.partySize),
+});
+
 /**
- * The "log a tip" form. It validates the input, works out the tip percentage
- * as the server types, and hands the values to `onSubmit`.
+ * The tip form, used to log a new tip and to edit an existing one. It validates
+ * the input, works out the tip percentage as the server types, and hands the
+ * values to `onSubmit`.
  *
+ * @param {Object} entry existing tip to edit; leave out for a new tip
+ * @param {string} submitLabel text on the save button
  * @param {Function} onSubmit async (form) => void. Throw to keep the form as it is.
  */
-export default function TipForm({ onSubmit }) {
-  const [form, setForm] = useState(emptyForm);
+export default function TipForm({ entry, submitLabel = 'Save tip', onSubmit }) {
+  const [form, setForm] = useState(() => (entry ? formFromEntry(entry) : emptyForm()));
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
@@ -43,7 +54,7 @@ export default function TipForm({ onSubmit }) {
     setSaving(true);
     try {
       await onSubmit(form);
-      setForm(emptyForm());
+      if (!entry) setForm(emptyForm());
     } catch {
       // The screen has already told the user what went wrong; keep their input.
     } finally {
@@ -88,8 +99,8 @@ export default function TipForm({ onSubmit }) {
         </Text>
       </Card>
 
-      <AppButton title="Save tip" onPress={handleSubmit} loading={saving} />
-      <Text style={styles.footnote}>No signal? The tip saves on your phone and syncs later.</Text>
+      <AppButton title={submitLabel} onPress={handleSubmit} loading={saving} />
+      {entry ? null : <Text style={styles.footnote}>No signal? The tip saves on your phone and syncs later.</Text>}
     </View>
   );
 }

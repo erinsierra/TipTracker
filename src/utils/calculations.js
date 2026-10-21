@@ -57,3 +57,43 @@ export function summariseSessions(sessions, variantIds) {
   });
   return summary;
 }
+/** Turns a Date into a "YYYY-MM-DD" text, using the phone's local time. */
+function toKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Keeps only the entries whose shiftDate is between startKey and endKey.
+ * A null start or end means "no limit" on that side.
+ */
+export function filterByDateRange(entries, startKey, endKey) {
+  return entries.filter((entry) => {
+    if (startKey && entry.shiftDate < startKey) return false;
+    if (endKey && entry.shiftDate > endKey) return false;
+    return true;
+  });
+}
+
+/** Gives the start and end dates for a History filter button. */
+export function rangeForFilter(filter, today = new Date()) {
+  const end = toKey(today);
+
+  if (filter === '7d') {
+    const start = new Date(today);
+    start.setDate(start.getDate() - 6);
+    return { start: toKey(start), end };
+  }
+  if (filter === '30d') {
+    const start = new Date(today);
+    start.setDate(start.getDate() - 29);
+    return { start: toKey(start), end };
+  }
+  if (filter === 'month') {
+    const start = new Date(today.getFullYear(), today.getMonth(), 1);
+    return { start: toKey(start), end };
+  }
+  return { start: null, end: null };
+}

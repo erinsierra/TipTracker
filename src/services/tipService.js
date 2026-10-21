@@ -2,7 +2,7 @@
  * Tip entries, stored in the tipEntries collection.
  * Each entry: userId, shiftDate, billAmount, tipAmount, partySize, tipPercentage, createdAt, synced.
  */
-import { collection, deleteDoc, doc, getDocs, onSnapshot, query, setDoc, where, writeBatch } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, onSnapshot, query, setDoc, where, writeBatch, updateDoc } from 'firebase/firestore';
 
 import { COLLECTIONS } from '../config/constants';
 import { db } from '../config/firebase';
@@ -41,6 +41,10 @@ export function subscribeToTips(userId, onChange, onError) {
       ),
     onError
   );
+}
+/** Changes an entry that is already saved. */
+export function updateTip(id, changes) {
+  return updateDoc(doc(tipsCollection(), id), changes);
 }
 
 /** Removes one entry. */
