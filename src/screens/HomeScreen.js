@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, fontSizes, fonts, radius, spacing } from '../theme/theme';
 
-/** A large tappable card for one of the two ways to use the app. */
+// Large tappable card for each way to use the app
 function OptionCard({ icon, title, description, onPress, filled = false }) {
   const foreground = filled ? colors.white : colors.primary;
   return (
@@ -27,7 +27,7 @@ function OptionCard({ icon, title, description, onPress, filled = false }) {
   );
 }
 
-/** First screen: use the customer calculator, or sign in as a server. */
+// First screen: customer calculator or server sign-in
 export default function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets();
 
