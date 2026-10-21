@@ -98,6 +98,12 @@ export default function AccountScreen({ navigation }) {
         <>
           <SectionLabel>Administrator</SectionLabel>
           <AppButton
+            title="View registered users"
+            variant="outline"
+            onPress={() => navigation.navigate('AdminUsers')}
+            style={styles.spaced}
+          />
+          <AppButton
             title="View A/B analytics"
             variant="outline"
             onPress={() => navigation.navigate('AdminAnalytics')}
@@ -157,5 +163,6 @@ const styles = StyleSheet.create({
   detailValue: { flex: 1, textAlign: 'right', color: colors.text, fontFamily: fonts.medium, fontSize: fontSizes.sm },
   text: { color: colors.text, fontFamily: fonts.regular, fontSize: fontSizes.sm, marginBottom: spacing.md },
   action: { marginBottom: spacing.xl },
+  spaced: { marginBottom: spacing.md },
   signOut: { marginBottom: spacing.md },
 });
