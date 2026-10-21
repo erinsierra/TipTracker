@@ -16,7 +16,7 @@ import { formatPercent, formatRand } from '../../utils/format';
 const VARIANTS = Object.values(DISPLAY_VARIANTS);
 const VARIANT_IDS = VARIANTS.map((variant) => variant.id);
 
-/** A label and figure inside a variant card. */
+// Label and value row inside a variant card
 function Metric({ label, value }) {
   return (
     <View style={styles.metric}>
@@ -26,10 +26,8 @@ function Metric({ label, value }) {
   );
 }
 
-/**
- * Administrator screen showing how the two tip-display variants perform,
- * using the anonymous sessions recorded by the customer calculator.
- */
+// Admin screen comparing the two tip display variants
+// Uses anonymous sessions from the customer calculator
 export default function AdminAnalyticsScreen({ navigation }) {
   const showToast = useToast();
   const [summary, setSummary] = useState(null);
@@ -37,7 +35,7 @@ export default function AdminAnalyticsScreen({ navigation }) {
 
   const [refreshCount, setRefreshCount] = useState(0);
 
-  // Loads the sessions when the screen opens and again each time Refresh is pressed.
+  // Loads sessions on open and each time Refresh is pressed
   useEffect(() => {
     let active = true;
     fetchCalculatorSessions()
