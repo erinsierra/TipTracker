@@ -3,10 +3,8 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { TOUCH_TARGET, colors, fontSizes, fonts, radius, spacing } from '../theme/theme';
 
-/**
- * A labelled text field. When `error` is set, the border turns red and the
- * message is shown underneath so the user knows what to fix.
- */
+// Text field with a label
+// If there's an error, the border turns red and the message shows below
 export default function AppInput({ label, error, style, ...inputProps }) {
   const [focused, setFocused] = useState(false);
 
