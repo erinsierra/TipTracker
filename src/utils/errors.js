@@ -1,4 +1,4 @@
-/** Turns a database error into a message the user can act on. */
+// Converts a database error into a user-friendly message
 export function getDataErrorMessage(error) {
   switch (error?.code) {
     case 'network/timeout':
