@@ -2,7 +2,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { colors, fontSizes, fonts, spacing } from '../theme/theme';
 
-/** A centred spinner with a short message, shown while data is loading. */
+// Centred spinner with a short message while data loads
 export default function LoadingView({ message = 'Loading…' }) {
   return (
     <View style={styles.container}>
