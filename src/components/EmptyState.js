@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { colors, fontSizes, fonts, spacing } from '../theme/theme';
 
-/** Shown in place of a list or chart when there is nothing to display yet. */
+// Shown instead of a list or chart when there's no data yet
 export default function EmptyState({ icon = 'receipt-outline', title, message }) {
   return (
     <View style={styles.container}>
