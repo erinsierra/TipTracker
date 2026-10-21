@@ -1,8 +1,6 @@
-/**
- * App-wide feedback messages. Any screen can call showToast() to confirm
- * that an action worked or explain why it failed.
- */
-// Toast types: success (green), error (red), info (dark) 
+// App-wide feedback messages
+// Any screen can call showToast() to show success or explain an error
+// Toast types: success (green), error (red), info (dark)
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, Text } from 'react-native';
@@ -26,7 +24,7 @@ export function ToastProvider({ children }) {
   const hideTimer = useRef(null);
   const insets = useSafeAreaInsets();
 
-  /** @param {string} message @param {'success' | 'error' | 'info'} type */
+  // Shows a toast message, type: 'success', 'error' or 'info'
   const showToast = useCallback(
     (message, type = 'success') => {
       clearTimeout(hideTimer.current);
@@ -61,7 +59,7 @@ export function ToastProvider({ children }) {
   );
 }
 
-/** Returns showToast(message, type). */
+// Returns showToast(message, type)
 export function useToast() {
   return useContext(ToastContext);
 }
