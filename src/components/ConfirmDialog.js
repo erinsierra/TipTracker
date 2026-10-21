@@ -3,11 +3,9 @@ import { Modal, StyleSheet, Text, View } from 'react-native';
 import { colors, fontSizes, fonts, radius, spacing } from '../theme/theme';
 import AppButton from './AppButton';
 
-/**
- * Asks the user to confirm before something that cannot be undone
- * (deleting an entry, logging out, deleting the account).
- * Extra content, such as a password field, can be passed as children.
- */
+// Asks the user to confirm actions that can't be undone
+// (deleting an entry, logging out, deleting the account)
+// Extra content like a password field can be passed as children
 export default function ConfirmDialog({
   visible,
   title,
