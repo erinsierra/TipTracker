@@ -24,7 +24,7 @@ const FILTERS = [
   { value: 'all', label: 'All' },
 ];
 
-/** One figure in the summary card. */
+// One figure in the summary card
 function Stat({ label, value }) {
   return (
     <View style={styles.stat}>
@@ -34,10 +34,8 @@ function Stat({ label, value }) {
   );
 }
 
-/**
- * The server's tip history, filtered by date range. Tap a tip (or its pencil)
- * to edit it, or use the bin icon to delete it.
- */
+// Server's tip history, filtered by date range
+// Tap a tip to edit it, or the bin icon to delete it
 export default function HistoryScreen({ navigation }) {
   const { entries, loading, isOnline, pendingCount, removeTip } = useTips();
   const showToast = useToast();
