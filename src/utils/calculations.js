@@ -57,7 +57,6 @@ export function summariseSessions(sessions, variantIds) {
   });
   return summary;
 }
-
 /** Turns a Date into a "YYYY-MM-DD" text, using the phone's local time. */
 function toKey(date) {
   const year = date.getFullYear();
