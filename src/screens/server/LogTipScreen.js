@@ -19,6 +19,7 @@ export default function LogTipScreen({ navigation }) {
       }
       navigation.navigate('History');
     } catch (error) {
+      //console.log('Log tip error:', error.code, error.message);
       showToast(getDataErrorMessage(error), 'error');
       throw error;
     }
