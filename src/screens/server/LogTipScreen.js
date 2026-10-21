@@ -4,7 +4,7 @@ import { useTips } from '../../context/TipsContext';
 import { useToast } from '../../context/ToastContext';
 import { getDataErrorMessage } from '../../utils/errors';
 
-/** Records a new tip, then opens the history, which already includes it. */
+// Saves a new tip, then opens history which already shows it
 export default function LogTipScreen({ navigation }) {
   const { addTip } = useTips();
   const showToast = useToast();
