@@ -4,11 +4,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { TOUCH_TARGET, colors, fontSizes, fonts, radius, spacing } from '../theme/theme';
 import { addDays, formatLongDate, toDateKey } from '../utils/dates';
 
-/**
- * Picks a shift date by stepping one day back or forward.
- * Servers nearly always log today's or yesterday's shift, so this is quicker
- * than a calendar. Future dates are blocked.
- */
+// Picks a shift date by moving one day back or forward
+// Quicker than a calendar since most shifts are today or yesterday
+// Future dates are blocked
 export default function DateStepper({ value, onChange, error }) {
   const today = toDateKey();
   const isToday = value >= today;
