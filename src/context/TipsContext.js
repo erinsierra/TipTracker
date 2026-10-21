@@ -109,7 +109,17 @@ export function TipsProvider({ children }) {
   const addTip = useCallback(
     async (form) => {
       const id = newTipId();
-      const entry = { ...toEntryFields(form), userId, createdAt: Date.now() };
+      const entry = {
+      userId,
+      shiftDate: String(form.shiftDate || ''),
+      billAmount: parseAmount(form.billAmount),
+      tipAmount: parseAmount(form.tipAmount),
+      partySize: parseInt(form.partySize, 10),
+      tipPercentage: calculateTipPercentage(
+        billAmount,
+        tipAmount),
+      createdAt: Date.now(),
+    };
 
       if (isOnline) {
         try {
