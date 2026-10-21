@@ -1,14 +1,12 @@
-/**
- * Input validation. Each validator returns an error message, or null when the
- * value is valid, so screens can show the message under the field.
- */
+// Input validation
+// Each validator returns an error message, or null if valid
 import { toDateKey } from './dates';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_AMOUNT = 1000000;
 const MAX_PARTY_SIZE = 100;
 
-/** Reads a typed amount such as '560', '560.50' or '560,50'. Returns NaN if it is not a number. */
+// Reads amounts like '560', '560.50' or '560,50', returns NaN if invalid
 export function parseAmount(text) {
   const cleaned = String(text ?? '')
     .trim()
@@ -47,7 +45,7 @@ export function validatePasswordMatch(password, confirmation) {
   return password === confirmation ? null : 'Passwords do not match.';
 }
 
-/** Validates a rand amount. `label` is used in the message, e.g. 'bill amount'. */
+// Validates a rand amount, label is used in the message (e.g. 'bill amount')
 export function validateAmount(text, label, { allowZero = false } = {}) {
   if (!String(text ?? '').trim()) return `Enter the ${label}.`;
   const amount = parseAmount(text);
@@ -75,10 +73,8 @@ export function validatePartySize(text) {
   return null;
 }
 
-/**
- * Validates the whole Log a Tip form.
- * @returns {Object} field name -> error message. Empty object means the form is valid.
- */
+// Validates the whole Log a Tip form
+// Returns { field: error }, an empty object means it's valid
 export function validateTipEntry({ shiftDate, billAmount, tipAmount, partySize }) {
   const errors = {};
   if (!shiftDate) errors.shiftDate = 'Choose the shift date.';
