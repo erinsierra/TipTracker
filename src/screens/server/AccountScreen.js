@@ -13,7 +13,7 @@ import { useToast } from '../../context/ToastContext';
 import { deleteAccount, getAuthErrorMessage, logout } from '../../services/authService';
 import { colors, fontSizes, fonts, spacing } from '../../theme/theme';
 
-/** A label and value pair in the account card. */
+// Label and value row in the account card
 function Detail({ label, value }) {
   return (
     <View style={styles.detail}>
@@ -23,13 +23,14 @@ function Detail({ label, value }) {
   );
 }
 
-/** Who is signed in, with offline sync, sign out and account deletion. Administrators also get the A/B analytics. */
+// Shows the signed-in user, offline sync, sign out and account deletion
+// Admins also get a link to the A/B analytics
 export default function AccountScreen({ navigation }) {
   const { user, displayName, isAdmin } = useAuth();
   const { pendingCount, syncNow } = useTips();
   const showToast = useToast();
 
-  const [dialog, setDialog] = useState(null); // 'logout' | 'delete'
+  const [dialog, setDialog] = useState(null); // 'logout' or 'delete'
   const [busy, setBusy] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [password, setPassword] = useState('');
