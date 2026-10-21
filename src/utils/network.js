@@ -1,11 +1,11 @@
-/** Small helpers for working with an unreliable connection. */
+// Helpers for handling an unreliable connection
 
-/** True when a NetInfo state means the phone can reach the internet. */
+// True when the phone can reach the internet
 export function isOnlineState(state) {
   return Boolean(state?.isConnected) && state?.isInternetReachable !== false;
 }
 
-/** Rejects if the promise takes longer than `ms`, so the app never hangs on a weak signal. */
+// Fails if the promise takes longer than ms, so the app doesn't hang on weak signal
 export function withTimeout(promise, ms) {
   let timer;
   const timeout = new Promise((_, reject) => {
