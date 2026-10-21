@@ -6,14 +6,14 @@ import { useTips } from '../../context/TipsContext';
 import { useToast } from '../../context/ToastContext';
 import { getDataErrorMessage } from '../../utils/errors';
 
-/** Changes an existing tip. Opened by tapping a tip in the history. */
+// Edits an existing tip, opened by tapping a tip in history
 export default function EditTipScreen({ navigation, route }) {
   const { entries, editTip } = useTips();
   const showToast = useToast();
 
   const entry = entries.find((item) => item.id === route.params.entryId);
 
-  // If the tip disappears (for example, it was deleted), leave the screen.
+  // Leaves the screen if the tip no longer exists (e.g. deleted)
   useEffect(() => {
     if (!entry) navigation.goBack();
   }, [entry, navigation]);
