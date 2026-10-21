@@ -1,7 +1,4 @@
-/**
- * Holds the signed-in user and their profile for the whole app.
- * Navigation reads this to decide between the public and the signed-in screens.
- */
+// Keeps track of who is logged in and shares it with the whole app.
 import { onAuthStateChanged } from 'firebase/auth';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
@@ -16,7 +13,7 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [initialising, setInitialising] = useState(true);
 
-  // Firebase restores a saved session on launch, then reports every sign-in and sign-out.
+  // Listen for login / logout (also restores a saved login on launch)
   useEffect(
     () =>
       onAuthStateChanged(auth, (currentUser) => {
@@ -27,7 +24,7 @@ export function AuthProvider({ children }) {
     []
   );
 
-  // Keep the profile (name, role) in step with the database.
+  // When someone is logged in, load their profile
   useEffect(() => {
     if (!user) return undefined;
     return subscribeToUserProfile(user.uid, setProfile, () => setProfile(null));
