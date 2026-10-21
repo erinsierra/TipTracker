@@ -5,11 +5,9 @@ import { colors, fontSizes, fonts, spacing } from '../theme/theme';
 import { formatShortDate } from '../utils/dates';
 import { formatPercent, formatRand } from '../utils/format';
 
-/**
- * One tip entry in the history list.
- * @param {Function} onPress optional - opens the entry for editing
- * @param {Function} onDelete optional - shows a delete button
- */
+// One tip entry in the history list
+// onPress (optional): opens the entry for editing
+// onDelete (optional): shows a delete button
 export default function TipRow({ entry, onPress, onDelete }) {
   const date = formatShortDate(entry.shiftDate);
   const waitingToSync = entry.synced === false;
