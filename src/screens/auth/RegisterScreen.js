@@ -9,18 +9,20 @@ import { getAuthErrorMessage, registerServer } from '../../services/authService'
 import { colors, fontSizes, fonts, spacing } from '../../theme/theme';
 import { validateEmail, validateName, validatePassword, validatePasswordMatch } from '../../utils/validation';
 
-/** Account creation for new servers. */
+// Registration screen for new servers.
 export default function RegisterScreen({ navigation }) {
   const showToast = useToast();
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmation: '' });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
+  // Update a field and clear its error while typing
   const setField = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
     if (errors[field]) setErrors((current) => ({ ...current, [field]: undefined }));
   };
-
+  
+  // Check all fields, then create the account in Firebase
   const handleRegister = async () => {
     const checks = {
       name: validateName(form.name),
@@ -28,7 +30,11 @@ export default function RegisterScreen({ navigation }) {
       password: validatePassword(form.password),
       confirmation: validatePasswordMatch(form.password, form.confirmation),
     };
-    const found = Object.fromEntries(Object.entries(checks).filter(([, message]) => message));
+    // Keep only the fields that have an error
+    const found = {};
+    for (const field in checks) {
+      if (checks[field]) found[field] = checks[field];
+    }
     setErrors(found);
     if (Object.keys(found).length) return;
 
